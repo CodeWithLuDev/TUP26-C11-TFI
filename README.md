@@ -1,8 +1,8 @@
 # Trabajo Final Integrador — Fixture del Mundial en Tiempo Real ⚽
 
-**Materia:** Programación III
+**Materia:** Programación III  
 **Carrera:** Tecnicatura en Programación  
-**Modalidad:** Individual o Grupal (max. 3 personas)
+**Modalidad:** Individual o Grupal (max. 3 personas)  
 **Ponderación:** 40% de la nota final  
 **Entrega:** 28 de Junio
 
@@ -169,16 +169,18 @@ El código debe seguir las siguientes buenas prácticas de desarrollo:
 
 ### 4.3 Entregables requeridos
 
-La entrega debe incluir obligatoriamente:
+1. Crear una rama individual (alumno/nombre) o grupal (grupo/nombreGrupo) dependiendo de como trabajaron.
+2. Estando en su rama correspondiente deben crear una carpeta dentro de la carpeta `Entregas` y subir su trabajo allí.
+3. La entrega debe incluir obligatoriamente:
 
-- [ ] **Código fuente completo** del proyecto
-- [ ] **Archivo `README.md`** con:
-  - Descripción general del proyecto
-  - Tecnologías utilizadas y versiones
-  - Instrucciones de instalación y ejecución paso a paso
-  - Decisiones de diseño o técnicas relevantes
-  - Integrantes del grupo (nombre y legajo)
-- [ ] **Demostración en vivo** del sistema funcionando durante la instancia de defensa
+    - [ ] **Código fuente completo** del proyecto
+    - [ ] **Archivo `README.md`** con:
+      - Descripción general del proyecto
+      - Tecnologías utilizadas y versiones
+      - Instrucciones de instalación y ejecución paso a paso
+      - Decisiones de diseño o técnicas relevantes
+      - Integrantes del grupo (nombre y legajo)
+    - [ ] **Demostración en vivo** del sistema funcionando durante la instancia de defensa
 
 > ⚠️ La ausencia del archivo `README.md` penaliza directamente la nota de presentación y defensa.
 
