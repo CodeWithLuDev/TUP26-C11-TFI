@@ -1,497 +1,181 @@
 // ═══════════════════════════════════════════════════════════
-// src/ui/album.js
-// Álbum Panini Potrero '26
-// Mecánica: sobres con animación de apertura + flip cards
-// Persistencia: LocalStorage
+// src/ui/album.js — Álbum Panini Potrero '26
+// Estilo figurita Panini oficial con foto real
 // ═══════════════════════════════════════════════════════════
 
-import { JUGADORES, getPlantelPorEquipo } from "../data/jugadores.js";
-import { EQUIPOS, getEquipoPorId }        from "../data/equipos.js";
+import { getPlantelPorEquipo } from "../data/jugadores.js";
+import { EQUIPOS, getEquipoPorId } from "../data/equipos.js";
 
-// ─── CONSTANTES ──────────────────────────────────────────
-const LS_KEY_ALBUM   = "copa_potrero_album_v1";
-const LS_KEY_DIARIO  = "copa_potrero_album_diario_v1";
+const LS_KEY = "copa_potrero_album_v1";
 
-// Cuántas figuritas trae cada sobre
-const FIGURITAS_POR_SOBRE = 5;
+const POS_COLOR = {
+  GK:  "#e67e22",
+  DEF: "#2980b9",
+  MID: "#27ae60",
+  FWD: "#c0392b",
+};
+const POS_LABEL = { GK: "POR", DEF: "DEF", MID: "MED", FWD: "DEL" };
 
-// Cooldown: 1 sobre por día (en ms)
-const COOLDOWN_DIARIO_MS = 24 * 60 * 60 * 1000;
+// ─── IDs FotMob ───────────────────────────────────────────
+const FOTO_IDS = {
+  "ARG_1":"645885","ARG_10":"30981","ARG_9":"222702","ARG_25":"929766",
+  "ARG_7":"561772","ARG_8":"910366","ARG_17":"934716","ARG_13":"726883",
+  "ARG_6":"874939","ARG_2":"748820","ARG_14":"39580","ARG_5":"68548",
+  "ARG_18":"908265","ARG_19":"1028988","ARG_11":"861588","ARG_12":"100899",
+  "ARG_15":"68422","ARG_16":"597946","ARG_22":"652278","ARG_23":"73719",
+  "BRA_10":"478045","BRA_11":"852007","BRA_9":"461607","BRA_1":"189332",
+  "BRA_4":"564992","BRA_7":"700041","BRA_20":"1104337","BRA_17":"793899",
+  "BRA_15":"780705","BRA_5":"580298",
+  "FRA_10":"839087","FRA_7":"170702","FRA_1":"740935","FRA_8":"882288",
+  "FRA_15":"880987","FRA_11":"542401","FRA_19":"924217","FRA_22":"906711",
+  "FRA_14":"780685","FRA_6":"659238",
+  "ESP_21":"1117492","ESP_10":"965129","ESP_19":"961995","ESP_18":"937762",
+  "ESP_1":"785468","ESP_7":"222591","ESP_16":"798148","ESP_8":"817054",
+  "ESP_15":"868759","ESP_17":"926771",
+  "GER_10":"1017795","GER_20":"839476","GER_1":"3469","GER_7":"700471",
+  "GER_16":"4965","GER_17":"648516","GER_21":"877397","GER_8":"457655",
+  "POR_7":"13322","POR_11":"875791","POR_10":"511519","POR_9":"942496",
+  "POR_1":"801590","POR_8":"1019009","POR_2":"771704","POR_16":"868726",
+  "ENG_10":"1019079","ENG_9":"55763","ENG_7":"961169","ENG_8":"876713",
+  "ENG_1":"225321","ENG_11":"697145","ENG_17":"976592",
+  "NED_4":"99655","NED_11":"895549","NED_10":"197356","NED_20":"880987",
+  "NED_17":"829990","NED_18":"949024",
+  "COL_7":"881082","COL_10":"173982","COL_18":"928135",
+  "URU_11":"902398","URU_18":"765568","URU_9":"42296",
+  "NOR_9":"773997","NOR_10":"851507",
+  "SEN_10":"200539","SEN_7":"663660",
+  "MAR_2":"668976","MAR_10":"225014","MAR_7":"561380",
+  "EGY_10":"293223","EGY_20":"995003",
+  "BEL_15":"3619","BEL_9":"33015","BEL_21":"943027",
+  "JAP_7":"876373","JAP_9":"888002",
+  "CRO_10":"200029","CRO_8":"252059",
+  "TUR_10":"771993","TUR_17":"1036232",
+  "KOR_7":"45654","KOR_10":"721515",
+  "MEX_19":"985083","MEX_10":"188148",
+  "AUT_7":"614622","AUT_8":"775478","AUT_10":"879483","AUT_9":"41236",
+  "ALG_10":"198066",
+};
 
-// Posiciones con emoji
-const POS_EMOJI = { GK: "🧤", DEF: "🛡️", MID: "⚡", FWD: "🎯" };
-
-// ─── ESTADO ──────────────────────────────────────────────
-let _figuritasConseguidas = new Set(); // Set de IDs de figuritas desbloqueadas
-let _equipoActivo         = null;      // ID del equipo filtrado actualmente
-let _sobreAbierto         = false;     // Flag para evitar doble apertura
-
-// ─── INICIALIZACIÓN ──────────────────────────────────────
+let _equipoActivo = null;
 
 export function initAlbum() {
-  _cargarEstado();
-  _renderFiltroEscudos();
-  _renderSeccionSobre();
+  try {
+    const d = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+    _equipoActivo = d.equipoActivo ?? null;
+  } catch { _equipoActivo = null; }
+
+  const validos = EQUIPOS.filter(eq => getPlantelPorEquipo(eq.id)?.length > 0);
+  if (!_equipoActivo && validos.length) _equipoActivo = validos[0].id;
+
+  _renderEstructura(validos);
   _renderFiguritas();
   _bindEventos();
 }
 
-// ─── PERSISTENCIA ────────────────────────────────────────
-
-function _cargarEstado() {
-  try {
-    const guardado = localStorage.getItem(LS_KEY_ALBUM);
-    if (guardado) {
-      const data = JSON.parse(guardado);
-      _figuritasConseguidas = new Set(data.figuritas ?? []);
-      _equipoActivo = data.equipoActivo ?? null;
-    }
-  } catch {
-    _figuritasConseguidas = new Set();
-    _equipoActivo = null;
-  }
-}
-
-function _guardarEstado() {
-  localStorage.setItem(LS_KEY_ALBUM, JSON.stringify({
-    figuritas:    [..._figuritasConseguidas],
-    equipoActivo: _equipoActivo,
-  }));
-}
-
-function _getEstadoDiario() {
-  try {
-    const raw = localStorage.getItem(LS_KEY_DIARIO);
-    return raw ? JSON.parse(raw) : { ultimaApertura: null };
-  } catch {
-    return { ultimaApertura: null };
-  }
-}
-
-function _setEstadoDiario(ts) {
-  localStorage.setItem(LS_KEY_DIARIO, JSON.stringify({ ultimaApertura: ts }));
-}
-
-function _puedeAbrirSobre() {
-  const { ultimaApertura } = _getEstadoDiario();
-  if (!ultimaApertura) return true;
-  return Date.now() - ultimaApertura >= COOLDOWN_DIARIO_MS;
-}
-
-function _tiempoRestanteSobre() {
-  const { ultimaApertura } = _getEstadoDiario();
-  if (!ultimaApertura) return 0;
-  const restante = COOLDOWN_DIARIO_MS - (Date.now() - ultimaApertura);
-  return Math.max(0, restante);
-}
-
-// ─── RENDER FILTRO ESCUDOS ───────────────────────────────
-
-function _renderFiltroEscudos() {
-  const contenedor = document.getElementById("albumEscudos");
-  if (!contenedor) return;
-
-  // Botón "Todos"
-  contenedor.innerHTML = `
-    <button class="escudo-btn ${!_equipoActivo ? "active" : ""}"
-            data-equipo="TODOS"
-            title="Ver todos">🌍</button>
-  `;
-
-  // Un botón por equipo que tenga jugadores
-  for (const [id, equipo] of Object.entries(EQUIPOS)) {
-    if (!getPlantelPorEquipo(id)?.length) continue;
-    const activo = _equipoActivo === id ? "active" : "";
-    contenedor.innerHTML += `
-      <button class="escudo-btn ${activo}"
-              data-equipo="${id}"
-              title="${equipo.nombre}">
-        ${equipo.bandera}
-      </button>
-    `;
-  }
-}
-
-// ─── SECCIÓN DEL SOBRE ───────────────────────────────────
-
-function _renderSeccionSobre() {
-  // Buscar o crear la sección del sobre
-  let seccion = document.getElementById("albumSobreSection");
-  if (!seccion) {
-    seccion = document.createElement("div");
-    seccion.id = "albumSobreSection";
-    seccion.className = "album-sobre-section";
-
-    const albumSection = document.querySelector(".album-section");
-    if (!albumSection) return;
-
-    const header = albumSection.querySelector(".album-section__header");
-    header?.after(seccion);
-  }
-
-  const puede    = _puedeAbrirSobre();
-  const restante = puede ? 0 : _tiempoRestanteSobre();
-  const totalFigs = _contarTotalFiguritas();
-  const progreso  = totalFigs > 0
-    ? Math.round((_figuritasConseguidas.size / totalFigs) * 100)
-    : 0;
-
-  seccion.innerHTML = `
-    <div class="album-progreso">
-      <div class="album-progreso__texto">
-        <span class="album-progreso__num">${_figuritasConseguidas.size}</span>
-        <span class="album-progreso__sep">/</span>
-        <span class="album-progreso__total">${totalFigs}</span>
-        <span class="album-progreso__label">figuritas conseguidas</span>
-      </div>
-      <div class="album-progreso__barra">
-        <div class="album-progreso__fill" style="width: ${progreso}%">
-          <span class="album-progreso__pct">${progreso}%</span>
-        </div>
+function _renderEstructura(validos) {
+  const s = document.querySelector(".album-section");
+  if (!s) return;
+  s.innerHTML = `
+    <div class="album-section__header">
+      <h2 class="album-section__titulo">
+        <span class="album-badge">PANINI</span> ÁLBUM POTRERO '26
+      </h2>
+      <div class="album-filtro">
+        <label for="albumEquipoSelect" class="album-filtro__label">Ver plantel de:</label>
+        <select id="albumEquipoSelect" class="album-desplegable-equipos">
+          ${validos.map(eq=>`
+            <option value="${eq.id}" ${_equipoActivo===eq.id?"selected":""}>
+              ${eq.bandera} ${eq.nombre}
+            </option>`).join("")}
+        </select>
       </div>
     </div>
-
-    <div class="album-sobre-wrapper">
-      <div class="album-sobre ${puede ? "album-sobre--disponible" : "album-sobre--agotado"}"
-           id="albumSobre"
-           role="button"
-           aria-label="${puede ? "Abrir sobre de figuritas" : "Sobre no disponible aún"}"
-           tabindex="0">
-        <div class="album-sobre__frente">
-          <div class="album-sobre__logo">⚽</div>
-          <div class="album-sobre__titulo">POTRERO '26</div>
-          <div class="album-sobre__sub">COLECCIÓN OFICIAL</div>
-          <div class="album-sobre__estrellas">★ ★ ★ ★ ★</div>
-          ${puede
-            ? `<div class="album-sobre__cta">¡ABRÍ EL SOBRE!</div>`
-            : `<div class="album-sobre__countdown" id="sobreCountdown">${_formatTiempo(restante)}</div>`
-          }
-        </div>
-        <div class="album-sobre__brillo"></div>
-      </div>
-
-      <div class="album-sobre-info">
-        <p class="album-sobre-info__texto">
-          ${puede
-            ? `🎁 <strong>¡Hay un sobre disponible!</strong> Abrilo para conseguir ${FIGURITAS_POR_SOBRE} figuritas.`
-            : `⏳ El próximo sobre estará disponible en <strong id="sobreTimerTexto">${_formatTiempo(restante)}</strong>`
-          }
-        </p>
-      </div>
-    </div>
-
-    <!-- Contenedor donde aparecen las figuritas del sobre abierto -->
-    <div class="album-sobre-resultado" id="albumSobreResultado"></div>
+    <div id="albumFiguritas" class="album-figuritas"></div>
   `;
-
-  // Timer en tiempo real
-  if (!puede) {
-    _iniciarCountdown();
-  }
 }
-
-function _iniciarCountdown() {
-  const interval = setInterval(() => {
-    const restante = _tiempoRestanteSobre();
-    const countdown = document.getElementById("sobreCountdown");
-    const timerTexto = document.getElementById("sobreTimerTexto");
-    if (countdown)   countdown.textContent  = _formatTiempo(restante);
-    if (timerTexto)  timerTexto.textContent = _formatTiempo(restante);
-
-    if (restante <= 0) {
-      clearInterval(interval);
-      _renderSeccionSobre(); // re-render para habilitar el sobre
-    }
-  }, 1000);
-}
-
-function _formatTiempo(ms) {
-  if (ms <= 0) return "¡Ya disponible!";
-  const h = Math.floor(ms / 3600000);
-  const m = Math.floor((ms % 3600000) / 60000);
-  const s = Math.floor((ms % 60000)   / 1000);
-  return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-}
-
-// ─── RENDER FIGURITAS ────────────────────────────────────
 
 function _renderFiguritas() {
-  const contenedor = document.getElementById("albumFiguritas");
-  if (!contenedor) return;
-
-  const plantel = _equipoActivo
-    ? getPlantelPorEquipo(_equipoActivo)
-    : _getTodoElPlantel();
-
+  const c = document.getElementById("albumFiguritas");
+  if (!c) return;
+  const plantel = getPlantelPorEquipo(_equipoActivo);
+  const equipo  = getEquipoPorId(_equipoActivo);
   if (!plantel?.length) {
-    contenedor.innerHTML = `
-      <div class="album-empty">
-        <div class="album-empty__icono">📭</div>
-        <p>No hay jugadores para mostrar</p>
-      </div>
-    `;
+    c.innerHTML = `<div class="album-empty"><p>📭 Sin jugadores cargados</p></div>`;
     return;
   }
-
-  // Separar conseguidas vs faltantes
-  const conseguidas = plantel.filter(j => _figuritasConseguidas.has(_figId(j)));
-  const faltantes   = plantel.filter(j => !_figuritasConseguidas.has(_figId(j)));
-
-  contenedor.innerHTML = "";
-
-  // Primero conseguidas, luego las "en blanco"
-  [...conseguidas, ...faltantes].forEach((jugador, idx) => {
-    const el = _crearFigurita(jugador, idx);
-    contenedor.appendChild(el);
-  });
+  c.innerHTML = "";
+  [...plantel].sort((a,b)=>a.dorsal-b.dorsal)
+    .forEach((j,i) => c.appendChild(_crearFigurita(j, equipo, i)));
 }
 
-function _crearFigurita(jugador, idx) {
-  const id          = _figId(jugador);
-  const conseguida  = _figuritasConseguidas.has(id);
-  const equipo      = getEquipoPorId(jugador.equipoId) ?? {};
-  const posEmoji    = POS_EMOJI[jugador.pos] ?? "⚽";
+function _crearFigurita(j, eq, idx) {
+  const posCol  = POS_COLOR[j.pos] ?? "#555";
+  const posLbl  = POS_LABEL[j.pos] ?? j.pos;
+  const key     = `${_equipoActivo}_${j.dorsal}`;
+  const fotoId  = FOTO_IDS[key];
+  const fotoUrl = fotoId
+    ? `https://images.fotmob.com/image_resources/playerimages/${fotoId}.png`
+    : null;
+  const iniciales = j.nombre.split(" ").map(p=>p[0]).slice(0,2).join("").toUpperCase();
+  const apellido  = j.nombre.split(" ").pop().toUpperCase();
+  const nombre    = j.nombre.split(" ").slice(0,-1).join(" ");
 
-  const wrapper = document.createElement("div");
-  wrapper.className = "figurita-wrapper";
-  wrapper.style.animationDelay = `${Math.min(idx * 0.03, 0.6)}s`;
+  const w = document.createElement("div");
+  w.className = "fig-wrapper";
+  w.style.animationDelay = `${Math.min(idx*0.02,0.4)}s`;
 
-  wrapper.innerHTML = `
-    <div class="figurita ${conseguida ? "figurita--conseguida" : "figurita--vacia"}"
-         data-id="${id}"
-         title="${conseguida ? jugador.nombre : "Sin conseguir"}">
+  w.innerHTML = `
+    <div class="fig-card">
 
-      <!-- Cara frontal -->
-      <div class="figurita__front">
-        <div class="figurita__header" style="background: ${equipo.colorPrimario ?? "var(--verde-claro)"}">
-          <span class="figurita__numero">#${jugador.dorsal}</span>
-          <span class="figurita__pos-badge">${jugador.pos} ${posEmoji}</span>
-        </div>
-        <div class="figurita__foto">
-          ${conseguida ? (equipo.bandera ?? "🏳️") : "❓"}
-        </div>
-        <div class="figurita__info">
-          <div class="figurita__nombre">${conseguida ? jugador.nombre : "???"}</div>
-          <div class="figurita__club">${conseguida ? (jugador.club ?? "")  : "Falta conseguir"}</div>
-        </div>
-        <div class="figurita__equipo-badge">
-          ${equipo.bandera ?? ""} ${conseguida ? (equipo.nombre ?? jugador.equipoId ?? "") : ""}
-        </div>
+      <!-- NÚMERO FLOTANTE -->
+      <div class="fig-num" style="background:${posCol}">${j.dorsal}</div>
+
+      <!-- ZONA FOTO -->
+      <div class="fig-foto-zona" style="background:linear-gradient(160deg,${posCol}cc,${posCol}55)">
+        ${fotoUrl
+          ? `<img src="${fotoUrl}" alt="${j.nombre}" class="fig-img"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+             /><div class="fig-iniciales" style="display:none">${iniciales}</div>`
+          : `<div class="fig-iniciales">${iniciales}</div>`
+        }
+        <!-- Degradado inferior -->
+        <div class="fig-foto-fade" style="--col:${posCol}"></div>
       </div>
 
-      <!-- Efecto brillo al hover -->
-      <div class="figurita__brillo"></div>
-    </div>
-  `;
+      <!-- BADGE POSICIÓN -->
+      <div class="fig-pos-badge" style="background:${posCol}">${posLbl}</div>
 
-  return wrapper;
-}
-
-// ─── APERTURA DE SOBRE ───────────────────────────────────
-
-function _abrirSobre() {
-  if (_sobreAbierto || !_puedeAbrirSobre()) return;
-  _sobreAbierto = true;
-
-  const sobre = document.getElementById("albumSobre");
-  if (!sobre) return;
-
-  sobre.classList.add("album-sobre--abriendo");
-
-  // Animación de apertura: 600ms
-  setTimeout(() => {
-    const nuevas = _sortearFiguritas();
-    _setEstadoDiario(Date.now());
-    _guardarEstado();
-
-    sobre.classList.remove("album-sobre--abriendo");
-    _renderSeccionSobre();      // Actualiza el sobre (ahora agotado)
-    _renderFiguritas();         // Actualiza el álbum
-    _mostrarFiguritasNuevas(nuevas);
-
-    _sobreAbierto = false;
-  }, 600);
-}
-
-function _sortearFiguritas() {
-  // Obtener todas las figuritas NO conseguidas
-  const todas      = _getTodoElPlantel();
-  const faltantes  = todas.filter(j => !_figuritasConseguidas.has(_figId(j)));
-
-  if (!faltantes.length) {
-    // Álbum completo: dar figuritas repetidas (no se guardan)
-    return _pickAleatorio(todas, FIGURITAS_POR_SOBRE);
-  }
-
-  // Pesar más las faltantes (80% faltantes, 20% repetidas si quedan pocas)
-  const cantidad   = Math.min(FIGURITAS_POR_SOBRE, faltantes.length);
-  const sorteadas  = _pickAleatorio(faltantes, cantidad);
-
-  // Guardar las nuevas
-  sorteadas.forEach(j => _figuritasConseguidas.add(_figId(j)));
-
-  return sorteadas;
-}
-
-function _mostrarFiguritasNuevas(jugadores) {
-  const contenedor = document.getElementById("albumSobreResultado");
-  if (!contenedor) return;
-
-  contenedor.innerHTML = `
-    <div class="sobre-resultado">
-      <h3 class="sobre-resultado__titulo">🎉 ¡Figuritas conseguidas!</h3>
-      <div class="sobre-resultado__grid" id="sobreResultadoGrid"></div>
-      <button class="btn btn--primario sobre-resultado__btn" id="btnVerAlbum">
-        Ver en el álbum ↓
-      </button>
-    </div>
-  `;
-
-  const grid = contenedor.querySelector("#sobreResultadoGrid");
-
-  jugadores.forEach((jugador, idx) => {
-    const equipo     = getEquipoPorId(jugador.equipoId) ?? {};
-    const posEmoji   = POS_EMOJI[jugador.pos] ?? "⚽";
-    const card       = document.createElement("div");
-    card.className   = "sobre-fig-nueva";
-    card.style.animationDelay = `${idx * 0.15}s`;
-
-    card.innerHTML = `
-      <div class="sobre-fig-nueva__inner">
-        <!-- Cara oculta (reverso del sobre) -->
-        <div class="sobre-fig-nueva__back">
-          <span>⚽</span>
-        </div>
-        <!-- Cara revelada -->
-        <div class="sobre-fig-nueva__front" style="background: linear-gradient(145deg, #f5f0dc, #e8dfc0)">
-          <div class="sfn__header" style="background: ${equipo.colorPrimario ?? "var(--verde-claro)"}">
-            <span class="sfn__dorsal">#${jugador.dorsal}</span>
-            <span class="sfn__pos">${jugador.pos} ${posEmoji}</span>
-          </div>
-          <div class="sfn__foto">${equipo.bandera ?? "🏳️"}</div>
-          <div class="sfn__nombre">${jugador.nombre}</div>
-          <div class="sfn__club">${jugador.club ?? ""}</div>
-          <div class="sfn__equipo">${equipo.nombre ?? jugador.equipoId ?? ""}</div>
-        </div>
+      <!-- NOMBRE -->
+      <div class="fig-data">
+        <div class="fig-nombre-small">${nombre}</div>
+        <div class="fig-apellido">${apellido}</div>
+        <div class="fig-club-line">${j.club ?? ""}</div>
       </div>
-    `;
 
-    grid.appendChild(card);
-  });
+      <!-- PIE -->
+      <div class="fig-footer">
+        <span class="fig-flag">${eq?.bandera ?? ""}</span>
+        <span class="fig-codigo">${eq?.id ?? ""}</span>
+        <span class="fig-logo-panini">PANINI</span>
+      </div>
 
-  // Scroll suave al resultado
-  setTimeout(() => {
-    contenedor.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, 200);
-
-  // Botón ver álbum
-  contenedor.querySelector("#btnVerAlbum")?.addEventListener("click", () => {
-    document.getElementById("albumFiguritas")?.scrollIntoView({ behavior: "smooth" });
-  });
+      <!-- BRILLO holográfico -->
+      <div class="fig-holo"></div>
+    </div>
+  `;
+  return w;
 }
-
-// ─── EVENTOS ────────────────────────────────────────────
 
 function _bindEventos() {
-  // Delegación en la sección del álbum completa
-  const albumSection = document.querySelector(".album-section");
-  if (!albumSection) return;
-
-  albumSection.addEventListener("click", (e) => {
-    // Clic en sobre
-    if (e.target.closest("#albumSobre")) {
-      _abrirSobre();
-      return;
-    }
-
-    // Clic en escudo (filtro)
-    const escudoBtn = e.target.closest(".escudo-btn");
-    if (escudoBtn) {
-      const equipo = escudoBtn.dataset.equipo;
-      _equipoActivo = equipo === "TODOS" ? null : equipo;
-      _guardarEstado();
-      _actualizarEscudosActivo(escudoBtn);
+  document.getElementById("albumEquipoSelect")
+    ?.addEventListener("change", e => {
+      _equipoActivo = e.target.value;
+      localStorage.setItem(LS_KEY, JSON.stringify({equipoActivo:_equipoActivo}));
       _renderFiguritas();
-      return;
-    }
-  });
-
-  // Teclado en el sobre (accesibilidad)
-  document.addEventListener("keydown", (e) => {
-    const sobre = document.getElementById("albumSobre");
-    if (e.key === "Enter" && document.activeElement === sobre) {
-      _abrirSobre();
-    }
-  });
+    });
 }
 
-function _actualizarEscudosActivo(btnActivo) {
-  document.querySelectorAll(".escudo-btn").forEach(btn => {
-    btn.classList.toggle("active", btn === btnActivo);
-  });
-}
-
-// ─── HELPERS ────────────────────────────────────────────
-
-/** ID único de una figurita: equipoId + dorsal */
-function _figId(jugador) {
-  return `${jugador.equipoId ?? "XX"}_${jugador.dorsal}`;
-}
-
-/** Todos los jugadores enriquecidos con su equipoId */
-function _getTodoElPlantel() {
-  const todos = [];
-  for (const [equipoId, plantel] of Object.entries(JUGADORES)) {
-    plantel.forEach(j => todos.push({ ...j, equipoId }));
-  }
-  return todos;
-}
-
-/** Total de figuritas posibles */
-function _contarTotalFiguritas() {
-  return _getTodoElPlantel().length;
-}
-
-/** Selección aleatoria sin repetir */
-function _pickAleatorio(arr, n) {
-  const copia = [...arr];
-  const result = [];
-  for (let i = 0; i < n && copia.length; i++) {
-    const idx = Math.floor(Math.random() * copia.length);
-    result.push(copia.splice(idx, 1)[0]);
-  }
-  return result;
-}
-
-// ─── API PÚBLICA ─────────────────────────────────────────
-
-/** Resetea el álbum completo (para testing) */
 export function resetAlbum() {
-  _figuritasConseguidas = new Set();
-  _equipoActivo = null;
-  localStorage.removeItem(LS_KEY_ALBUM);
-  localStorage.removeItem(LS_KEY_DIARIO);
+  localStorage.removeItem(LS_KEY);
   initAlbum();
-}
-
-/** Agrega manualmente una figurita (para testing) */
-export function agregarFigurita(equipoId, dorsal) {
-  const plantel = getPlantelPorEquipo(equipoId);
-  const jugador = plantel.find(j => j.dorsal === dorsal);
-  if (!jugador) return;
-  _figuritasConseguidas.add(_figId({ ...jugador, equipoId }));
-  _guardarEstado();
-  _renderFiguritas();
-}
-
-/** Estadísticas del álbum */
-export function getEstadisticasAlbum() {
-  const total = _contarTotalFiguritas();
-  const conseguidas = _figuritasConseguidas.size;
-  return {
-    total,
-    conseguidas,
-    faltantes: total - conseguidas,
-    porcentaje: total > 0 ? ((conseguidas / total) * 100).toFixed(1) : "0.0",
-  };
 }

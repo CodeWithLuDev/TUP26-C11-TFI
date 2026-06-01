@@ -1,31 +1,26 @@
-// ═══════════════════════════════════════════════════════════
 // src/ui/bracket.js
 // UI del árbol de playoffs — renderiza y gestiona interacciones
-// Depende de: playoffs.js (lógica), state.js (persistencia)
-// ═══════════════════════════════════════════════════════════
 
 import {
-  construirBracket,
-  registrarGanador,
-  resetearPartido,
-  isFaseGruposCompleta,
-  serializarBracket,
-  deserializarBracket,
+  construirBracket, registrarGanador,
+  resetearPartido, isFaseGruposCompleta,
+  serializarBracket, deserializarBracket,
 } from "../logic/playoffs.js";
 
-// ─── ESTADO LOCAL ────────────────────────────────────────
 const LS_KEY = "copa_potrero_bracket_v1";
+let _bracket       = null;
+let _partidoActivo = null;
 
-let _bracket      = null;  // Estado actual del bracket
-let _modalAbierto = false;
-let _partidoActivo = null; // Partido que está siendo editado
-
-// ─── INICIALIZACIÓN ──────────────────────────────────────
-
+// ─── INIT ─────────────────────────────────────────────────
 export function initBracket() {
   _bracket = _cargarBracket();
-  _renderBracket();
-  _bindNavBtn();
+
+  // Re-render cada vez que se navega al bracket
+  document.querySelector('[data-vista="bracket"]')
+    ?.addEventListener("click", () => {
+      _bracket = _cargarBracket();
+      _renderBracket();
+    });
 }
 
 function _cargarBracket() {
@@ -41,152 +36,148 @@ function _guardarBracket() {
   localStorage.setItem(LS_KEY, serializarBracket(_bracket));
 }
 
-// ─── RENDER PRINCIPAL ────────────────────────────────────
+// ─── RENDER PRINCIPAL ─────────────────────────────────────
+export function renderBracket() { _renderBracket(); }
 
 function _renderBracket() {
   const contenedor = document.getElementById("bracketContenido");
   if (!contenedor) return;
 
   const completa = isFaseGruposCompleta();
+  const tieneData = _tieneDatosReales();
 
-  if (!completa && !_tieneDatosReales()) {
-    contenedor.innerHTML = _templateVacio();
+  if (!completa && !tieneData) {
+    contenedor.className = "";
+    contenedor.innerHTML = `
+      <div class="bracket-empty">
+        <div class="bracket-empty__icono">🏆</div>
+        <p class="bracket-empty__titulo">El bracket se habilitará al finalizar la fase de grupos</p>
+        <p class="bracket-empty__sub">Cargá los 36 resultados para activar los playoffs</p>
+        <button class="btn btn--primario" id="btnForzarBracket" style="margin-top:1.5rem;max-width:300px">
+          ⚡ Vista previa (modo demo)
+        </button>
+      </div>
+    `;
+    contenedor.querySelector("#btnForzarBracket")
+      ?.addEventListener("click", () => {
+        _bracket = construirBracket(null);
+        _guardarBracket();
+        _renderBracket();
+      });
     return;
   }
 
-  contenedor.innerHTML = "";
   contenedor.className = "bracket-scroll";
+  contenedor.innerHTML = "";
 
-  const rondas = [
-    { key: "octavos",      titulo: "OCTAVOS DE FINAL",    cols: 2 },
-    { key: "cuartos",      titulo: "CUARTOS DE FINAL",    cols: 1 },
-    { key: "semifinales",  titulo: "SEMIFINALES",         cols: 1 },
-    { key: "tercerPuesto", titulo: "3ER Y 4TO PUESTO",    cols: 1 },
-    { key: "final",        titulo: "⭐ GRAN FINAL ⭐",     cols: 1 },
-  ];
+  // Estructura: R16izq | conector | QF | conector | SF | conector | FINAL/CAMPEON | conector | SF | conector | QF | conector | R16der
+  const r = _bracket.rondas;
+  const mitad = Math.ceil(r.octavos.length / 2);
 
-  // Los octavos se dividen en dos columnas visuales
-  for (const ronda of rondas) {
-    const partidos = _bracket.rondas[ronda.key];
-    if (!partidos?.length) continue;
+  contenedor.appendChild(_columna("OCTAVOS (1–8)",      r.octavos.slice(0, mitad), "octavos"));
+  contenedor.appendChild(_conector());
+  contenedor.appendChild(_columna("CUARTOS",            r.cuartos.slice(0, 4),     "cuartos"));
+  contenedor.appendChild(_conector());
+  contenedor.appendChild(_columna("SEMIFINALES",        r.semifinales.slice(0, 2), "semifinales"));
+  contenedor.appendChild(_conector());
 
-    if (ronda.key === "octavos") {
-      // Split en dos mitades para el bracket
-      const mitad = Math.ceil(partidos.length / 2);
-      contenedor.appendChild(_crearColumnaRonda(
-        "OCTAVOS (1-8)", partidos.slice(0, mitad), ronda.key
-      ));
-      contenedor.appendChild(_crearConector());
-      contenedor.appendChild(_crearColumnaRonda(
-        "CUARTOS DE FINAL", _bracket.rondas.cuartos, "cuartos"
-      ));
-      contenedor.appendChild(_crearConector());
-      contenedor.appendChild(_crearColumnaRonda(
-        "SEMIFINALES", _bracket.rondas.semifinales, "semifinales"
-      ));
-      contenedor.appendChild(_crearConector());
+  // Columna central: Final + Campeón + 3er Puesto
+  const colCentral = document.createElement("div");
+  colCentral.className = "bracket-ronda bracket-ronda--central";
+  colCentral.innerHTML = `
+    <div class="bracket-ronda__titulo">⭐ GRAN FINAL</div>
+    ${r.final.map(p => _cardPartido(p, "final")).join("")}
+    ${_campeonHTML()}
+    <div class="bracket-ronda__titulo" style="margin-top:2rem">3ER PUESTO</div>
+    ${r.tercerPuesto.map(p => _cardPartido(p, "tercerPuesto")).join("")}
+  `;
+  contenedor.appendChild(colCentral);
 
-      // Columna central: Final + Campeón
-      const colFinal = document.createElement("div");
-      colFinal.className = "bracket-ronda bracket-ronda--final";
-      colFinal.innerHTML = `
-        <div class="bracket-ronda__titulo">⭐ GRAN FINAL ⭐</div>
-        ${_templatePartidos(_bracket.rondas.final, "final")}
-        ${_campeonTemplate()}
-      `;
-      contenedor.appendChild(colFinal);
+  contenedor.appendChild(_conector());
+  contenedor.appendChild(_columna("SEMIFINALES",        r.semifinales.slice(2, 4), "semifinales"));
+  contenedor.appendChild(_conector());
+  contenedor.appendChild(_columna("CUARTOS",            r.cuartos.slice(4, 8),     "cuartos"));
+  contenedor.appendChild(_conector());
+  contenedor.appendChild(_columna("OCTAVOS (9–16)",     r.octavos.slice(mitad),    "octavos"));
 
-      contenedor.appendChild(_crearConector());
-      contenedor.appendChild(_crearColumnaRonda(
-        "3ER Y 4TO PUESTO", _bracket.rondas.tercerPuesto, "tercerPuesto"
-      ));
-      contenedor.appendChild(_crearConector());
-      contenedor.appendChild(_crearColumnaRonda(
-        "OCTAVOS (9-16)", partidos.slice(mitad), ronda.key
-      ));
-      break; // Ya armamos todo el árbol
-    }
-  }
-
-  _bindEventosBracket(contenedor);
+  _bindEventos(contenedor);
 }
 
-function _crearColumnaRonda(titulo, partidos, key) {
+// ─── COLUMNA DE RONDA ─────────────────────────────────────
+function _columna(titulo, partidos, rondaKey) {
   const col = document.createElement("div");
   col.className = "bracket-ronda";
   col.innerHTML = `
     <div class="bracket-ronda__titulo">${titulo}</div>
-    ${_templatePartidos(partidos, key)}
+    ${partidos.map(p => _cardPartido(p, rondaKey)).join("")}
   `;
   return col;
 }
 
-function _crearConector() {
+function _conector() {
   const el = document.createElement("div");
   el.className = "bracket-conector";
-  el.innerHTML = `<div class="bracket-conector__linea"></div>`;
+  el.innerHTML = `
+    <svg width="24" height="100%" viewBox="0 0 24 100" preserveAspectRatio="none">
+      <path d="M0,50 C12,50 12,50 24,50" stroke="rgba(201,168,76,0.4)" stroke-width="1.5" fill="none"/>
+    </svg>
+  `;
   return el;
 }
 
-function _templatePartidos(partidos, rondaKey) {
-  if (!partidos?.length) return "";
-  return partidos.map(p => _templatePartido(p, rondaKey)).join("");
-}
+// ─── CARD DE PARTIDO ──────────────────────────────────────
+function _cardPartido(partido, rondaKey) {
+  const { local, visitante, estado, resolucion, ganador, id } = partido;
+  const jugado    = estado === "jugado";
+  const pendiente = estado === "pendiente";
 
-function _templatePartido(partido, rondaKey) {
-  const { local, visitante, estado, resolucion, ganador } = partido;
-  const esJugado  = estado === "jugado";
-  const enCurso   = estado === "en_curso";
-  const esPendiente = estado === "pendiente";
+  const claseCard = `bracket-llave ${jugado ? "bracket-llave--jugado" : ""} ${pendiente && !local.equipo?.nombre?.includes("TBD") ? "bracket-llave--activo" : ""}`;
 
-  const claseCard = [
-    "bracket-llave",
-    esJugado   ? "bracket-llave--jugado"   : "",
-    enCurso    ? "bracket-llave--en-curso" : "",
-    esPendiente ? "bracket-llave--pendiente" : "",
-  ].filter(Boolean).join(" ");
+  const badge = jugado && resolucion !== "normal"
+    ? `<span class="bracket-badge">${resolucion === "penales" ? "PEN" : "AET"}</span>` : "";
 
-  const badgeResolucion = esJugado && resolucion !== "normal"
-    ? `<span class="bracket-badge-res">${resolucion === "penales" ? "PEN" : "AET"}</span>`
-    : "";
-
-  const claseLocal     = ganador === local.equipo?.id     ? "bracket-equipo bracket-equipo--ganador" : "bracket-equipo";
-  const claseVisitante = ganador === visitante.equipo?.id ? "bracket-equipo bracket-equipo--ganador" : "bracket-equipo";
-
-  const golesLocal     = local.goles     !== null ? local.goles     : "-";
-  const golesVisitante = visitante.goles !== null ? visitante.goles : "-";
-
-  const penalesLocal     = local.penales     !== null ? `(${local.penales})`     : "";
-  const penalesVisitante = visitante.penales !== null ? `(${visitante.penales})` : "";
-
-  const accion = esJugado
-    ? `<button class="bracket-btn bracket-btn--reset"  data-id="${partido.id}" title="Editar resultado">✏️</button>`
-    : `<button class="bracket-btn bracket-btn--cargar" data-id="${partido.id}" title="Cargar resultado">⚽ Cargar</button>`;
+  const boton = jugado
+    ? `<button class="bracket-btn-mini bracket-btn--edit" data-id="${id}">✏️</button>`
+    : `<button class="bracket-btn-mini bracket-btn--play" data-id="${id}">▶</button>`;
 
   return `
-    <div class="${claseCard}" data-partido="${partido.id}" data-ronda="${rondaKey}">
-      <div class="bracket-llave__header">
-        <span class="bracket-llave__id">${partido.id}</span>
-        ${badgeResolucion}
-        ${accion}
+    <div class="${claseCard}" data-id="${id}">
+      <div class="bracket-llave__top">
+        <span class="bracket-llave__id">${id}</span>
+        ${badge}
+        ${boton}
       </div>
-      <div class="${claseLocal}">
-        <span class="bracket-equipo__bandera">${local.equipo?.bandera ?? "🏳️"}</span>
-        <span class="bracket-equipo__nombre">${local.equipo?.nombre ?? "TBD"}</span>
-        <span class="bracket-equipo__goles">${golesLocal} ${penalesLocal}</span>
-      </div>
-      <div class="${claseVisitante}">
-        <span class="bracket-equipo__bandera">${visitante.equipo?.bandera ?? "🏳️"}</span>
-        <span class="bracket-equipo__nombre">${visitante.equipo?.nombre ?? "TBD"}</span>
-        <span class="bracket-equipo__goles">${golesVisitante} ${penalesVisitante}</span>
-      </div>
+      ${_equipoFila(local,     ganador, jugado, true)}
+      ${_equipoFila(visitante, ganador, jugado, false)}
     </div>
   `;
 }
 
-function _campeonTemplate() {
+function _equipoFila(lado, ganador, jugado, esLocal) {
+  const eq      = lado.equipo;
+  const esTBD   = !eq || eq.id === "TBD" || eq.nombre?.startsWith("TBD");
+  const esGanador = jugado && ganador === eq?.id;
+
+  const goles = lado.goles !== null ? lado.goles : "–";
+  const pen   = lado.penales !== null ? `<span class="bracket-penales">(${lado.penales})</span>` : "";
+
+  return `
+    <div class="bracket-equipo ${esGanador ? "bracket-equipo--ganador" : ""} ${esTBD ? "bracket-equipo--tbd" : ""}">
+      <span class="bracket-equipo__bandera">${esTBD ? "🏳️" : (eq?.bandera ?? "🏳️")}</span>
+      <span class="bracket-equipo__nombre">${esTBD ? "Por definir" : (eq?.nombre ?? "?")}</span>
+      <span class="bracket-equipo__goles">${goles}${pen}</span>
+    </div>
+  `;
+}
+
+function _campeonHTML() {
   if (!_bracket?.campeon) {
-    return `<div class="bracket-campeon bracket-campeon--vacio">🏆<br><span>Campeón</span></div>`;
+    return `
+      <div class="bracket-campeon bracket-campeon--vacio">
+        <span>🏆</span>
+        <span>CAMPEÓN</span>
+      </div>
+    `;
   }
   return `
     <div class="bracket-campeon">
@@ -198,153 +189,102 @@ function _campeonTemplate() {
   `;
 }
 
-function _templateVacio() {
-  return `
-    <div class="bracket-empty">
-      <div class="bracket-empty__icono">🏆</div>
-      <p class="bracket-empty__titulo">El bracket se habilitará al finalizar la fase de grupos</p>
-      <p class="bracket-empty__sub">Completá los resultados de los 36 partidos para activar los playoffs</p>
-      <button class="btn btn--primario" id="btnForzarBracket">
-        Vista previa del bracket (modo demo)
-      </button>
-    </div>
-  `;
-}
-
-// ─── EVENTOS ────────────────────────────────────────────
-
-function _bindEventosBracket(contenedor) {
-  contenedor.addEventListener("click", (e) => {
-    const btnCargar = e.target.closest(".bracket-btn--cargar");
-    const btnReset  = e.target.closest(".bracket-btn--reset");
-    const btnForzar = e.target.closest("#btnForzarBracket");
-
-    if (btnCargar) {
-      const id = btnCargar.dataset.id;
-      _abrirModalResultado(id);
-    }
-
-    if (btnReset) {
-      const id = btnReset.dataset.id;
-      _confirmarReset(id);
-    }
-
-    if (btnForzar) {
-      _forzarBracketDemo();
-    }
+// ─── MODAL DE RESULTADO ───────────────────────────────────
+function _bindEventos(contenedor) {
+  contenedor.addEventListener("click", e => {
+    const btnPlay = e.target.closest(".bracket-btn--play");
+    const btnEdit = e.target.closest(".bracket-btn--edit");
+    if (btnPlay) _abrirModal(btnPlay.dataset.id);
+    if (btnEdit) _abrirModal(btnEdit.dataset.id);
   });
 }
 
-function _bindNavBtn() {
-  // Re-render al activar la vista bracket
-  const btn = document.querySelector('[data-vista="bracket"]');
-  if (btn) {
-    btn.addEventListener("click", () => {
-      _bracket = _cargarBracket();
-      _renderBracket();
-    });
-  }
-}
-
-// ─── MODAL DE RESULTADO ──────────────────────────────────
-
-function _abrirModalResultado(partidoId) {
-  _partidoActivo = _encontrarPartidoEnBracket(partidoId);
+function _abrirModal(partidoId) {
+  _partidoActivo = _buscarPartido(partidoId);
   if (!_partidoActivo) return;
 
-  _modalAbierto = true;
-
-  // Crear modal dinámico si no existe
-  let modal = document.getElementById("bracketModal");
-  if (!modal) {
-    modal = _crearModalDOM();
-    document.body.appendChild(modal);
+  let overlay = document.getElementById("bracketModalOverlay");
+  if (!overlay) {
+    overlay = _crearModal();
+    document.body.appendChild(overlay);
   }
 
-  // Rellenar contenido
-  const local     = _partidoActivo.local.equipo;
-  const visitante = _partidoActivo.visitante.equipo;
+  const p = _partidoActivo;
+  overlay.querySelector(".bm-local-nombre").textContent =
+    `${p.local.equipo?.bandera ?? "🏳️"} ${p.local.equipo?.nombre ?? "TBD"}`;
+  overlay.querySelector(".bm-vis-nombre").textContent =
+    `${p.visitante.equipo?.bandera ?? "🏳️"} ${p.visitante.equipo?.nombre ?? "TBD"}`;
 
-  modal.querySelector(".bracket-modal__local").textContent =
-    `${local?.bandera ?? "🏳️"} ${local?.nombre ?? "TBD"}`;
-  modal.querySelector(".bracket-modal__visitante").textContent =
-    `${visitante?.bandera ?? "🏳️"} ${visitante?.nombre ?? "TBD"}`;
+  overlay.querySelector("#bmGolesL").value   = p.local.goles     ?? "";
+  overlay.querySelector("#bmGolesV").value   = p.visitante.goles ?? "";
+  overlay.querySelector("#bmPenL").value     = p.local.penales   ?? "";
+  overlay.querySelector("#bmPenV").value     = p.visitante.penales ?? "";
+  overlay.querySelector("#bmResol").value    = p.resolucion ?? "normal";
+  overlay.querySelector("#bmError").style.display = "none";
 
-  // Restaurar valores previos si existen
-  modal.querySelector("#bm-goles-local").value     = _partidoActivo.local.goles     ?? "";
-  modal.querySelector("#bm-goles-vis").value       = _partidoActivo.visitante.goles ?? "";
-  modal.querySelector("#bm-penales-local").value   = _partidoActivo.local.penales   ?? "";
-  modal.querySelector("#bm-penales-vis").value     = _partidoActivo.visitante.penales ?? "";
-  modal.querySelector("#bm-resolucion").value      = _partidoActivo.resolucion ?? "normal";
-
-  _togglePenalesUI(modal, _partidoActivo.resolucion ?? "normal");
-
-  modal.classList.add("active");
-  modal.querySelector("#bm-goles-local").focus();
+  _togglePen(overlay, p.resolucion ?? "normal");
+  overlay.classList.add("active");
+  overlay.querySelector("#bmGolesL").focus();
 }
 
-function _crearModalDOM() {
-  const modal = document.createElement("div");
-  modal.id        = "bracketModal";
-  modal.className = "modal-overlay bracket-modal-overlay";
-  modal.innerHTML = `
-    <div class="modal bracket-modal">
+function _crearModal() {
+  const overlay = document.createElement("div");
+  overlay.id        = "bracketModalOverlay";
+  overlay.className = "modal-overlay";
+
+  overlay.innerHTML = `
+    <div class="modal">
       <div class="modal__header">
         <h3 class="modal__titulo">⚽ RESULTADO PLAYOFF</h3>
         <button class="modal__cerrar" id="bmCerrar">✕</button>
       </div>
       <div class="modal__body">
-
-        <!-- Equipos -->
-        <div class="bracket-modal__equipos">
-          <span class="bracket-modal__local"></span>
-          <span class="bracket-modal__vs">VS</span>
-          <span class="bracket-modal__visitante"></span>
+        <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap">
+          <strong class="bm-local-nombre"></strong>
+          <span style="color:var(--tiza-sucia);font-family:var(--font-titulo)">VS</span>
+          <strong class="bm-vis-nombre"></strong>
         </div>
 
-        <!-- Marcador -->
-        <div class="bracket-modal__marcador">
-          <div class="modal-campo">
-            <label>Goles local</label>
-            <input id="bm-goles-local" type="number" min="0" max="30" class="marcador-input" placeholder="0" />
+        <div class="modal-marcador">
+          <div class="modal-campo" style="text-align:center">
+            <label>Local</label>
+            <input id="bmGolesL" type="number" min="0" max="30" class="marcador-input" placeholder="0"/>
           </div>
-          <div class="marcador-vs">—</div>
-          <div class="modal-campo">
-            <label>Goles visitante</label>
-            <input id="bm-goles-vis" type="number" min="0" max="30" class="marcador-input" placeholder="0" />
+          <span class="marcador-vs">—</span>
+          <div class="modal-campo" style="text-align:center">
+            <label>Visitante</label>
+            <input id="bmGolesV" type="number" min="0" max="30" class="marcador-input" placeholder="0"/>
           </div>
         </div>
 
-        <!-- Tipo de resolución -->
-        <div class="modal-campo">
-          <label>Resolución del partido</label>
-          <select id="bm-resolucion">
+        <div class="modal-campo" style="margin-bottom:1rem">
+          <label>Resolución</label>
+          <select id="bmResol">
             <option value="normal">Tiempo reglamentario</option>
-            <option value="extratime">Prórroga (Tiempo extra)</option>
+            <option value="extratime">Prórroga (AET)</option>
             <option value="penales">Penales</option>
           </select>
         </div>
 
-        <!-- Penales (condicional) -->
-        <div class="bracket-modal__penales" id="bmPenalesSection" style="display:none">
-          <p class="bracket-modal__penales-label">🥅 Resultado en penales</p>
-          <div class="bracket-modal__marcador">
-            <div class="modal-campo">
+        <div id="bmPenSection" style="display:none;margin-bottom:1rem">
+          <p style="font-family:var(--font-tiza);font-size:0.8rem;color:var(--oro-claro);margin-bottom:0.5rem">
+            🥅 Resultado en penales
+          </p>
+          <div class="modal-marcador">
+            <div class="modal-campo" style="text-align:center">
               <label>Penales local</label>
-              <input id="bm-penales-local" type="number" min="0" max="20" class="marcador-input" placeholder="0" />
+              <input id="bmPenL" type="number" min="0" max="20" class="marcador-input" placeholder="0"/>
             </div>
-            <div class="marcador-vs">—</div>
-            <div class="modal-campo">
-              <label>Penales visitante</label>
-              <input id="bm-penales-vis" type="number" min="0" max="20" class="marcador-input" placeholder="0" />
+            <span class="marcador-vs">—</span>
+            <div class="modal-campo" style="text-align:center">
+              <label>Penales visit.</label>
+              <input id="bmPenV" type="number" min="0" max="20" class="marcador-input" placeholder="0"/>
             </div>
           </div>
         </div>
 
-        <!-- Error -->
-        <p class="bracket-modal__error" id="bmError" style="display:none"></p>
+        <p id="bmError" style="display:none;color:var(--rojo-claro);font-family:var(--font-tiza);font-size:0.85rem;margin-bottom:0.8rem"></p>
 
-        <!-- Acciones -->
         <div class="modal-acciones">
           <button class="btn btn--secundario" id="bmCancelar">Cancelar</button>
           <button class="btn btn--primario"   id="bmConfirmar">✔ Confirmar</button>
@@ -353,118 +293,73 @@ function _crearModalDOM() {
     </div>
   `;
 
-  // Eventos del modal
-  modal.querySelector("#bmCerrar").addEventListener("click",   () => _cerrarModal(modal));
-  modal.querySelector("#bmCancelar").addEventListener("click", () => _cerrarModal(modal));
-  modal.querySelector("#bmConfirmar").addEventListener("click", () => _confirmarResultado(modal));
-
-  modal.querySelector("#bm-resolucion").addEventListener("change", (e) => {
-    _togglePenalesUI(modal, e.target.value);
+  overlay.querySelector("#bmCerrar").addEventListener("click",   () => _cerrarModal(overlay));
+  overlay.querySelector("#bmCancelar").addEventListener("click", () => _cerrarModal(overlay));
+  overlay.querySelector("#bmConfirmar").addEventListener("click",() => _confirmar(overlay));
+  overlay.querySelector("#bmResol").addEventListener("change",   e => _togglePen(overlay, e.target.value));
+  overlay.addEventListener("click", e => { if (e.target === overlay) _cerrarModal(overlay); });
+  overlay.addEventListener("keydown", e => {
+    if (e.key === "Escape") _cerrarModal(overlay);
+    if (e.key === "Enter")  _confirmar(overlay);
   });
 
-  // Cerrar al hacer click fuera
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) _cerrarModal(modal);
-  });
-
-  // Enter para confirmar
-  modal.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") _confirmarResultado(modal);
-    if (e.key === "Escape") _cerrarModal(modal);
-  });
-
-  return modal;
+  return overlay;
 }
 
-function _togglePenalesUI(modal, resolucion) {
-  const seccion = modal.querySelector("#bmPenalesSection");
-  if (seccion) {
-    seccion.style.display = resolucion === "penales" ? "block" : "none";
-  }
+function _togglePen(overlay, resol) {
+  overlay.querySelector("#bmPenSection").style.display =
+    resol === "penales" ? "block" : "none";
 }
 
-function _confirmarResultado(modal) {
+function _confirmar(overlay) {
   if (!_partidoActivo) return;
 
-  const golesLocal     = parseInt(modal.querySelector("#bm-goles-local").value);
-  const golesVisitante = parseInt(modal.querySelector("#bm-goles-vis").value);
-  const resolucion     = modal.querySelector("#bm-resolucion").value;
-  const penalesLocal   = parseInt(modal.querySelector("#bm-penales-local").value) || null;
-  const penalesVis     = parseInt(modal.querySelector("#bm-penales-vis").value)   || null;
-  const errorEl        = modal.querySelector("#bmError");
+  const gl   = parseInt(overlay.querySelector("#bmGolesL").value);
+  const gv   = parseInt(overlay.querySelector("#bmGolesV").value);
+  const resol = overlay.querySelector("#bmResol").value;
+  const pl   = parseInt(overlay.querySelector("#bmPenL").value) || null;
+  const pv   = parseInt(overlay.querySelector("#bmPenV").value) || null;
+  const errEl = overlay.querySelector("#bmError");
 
   // Validaciones
-  if (isNaN(golesLocal) || isNaN(golesVisitante)) {
-    _mostrarError(errorEl, "Ingresá los goles de ambos equipos.");
+  if (isNaN(gl) || isNaN(gv) || gl < 0 || gv < 0) {
+    errEl.textContent = "Ingresá marcadores válidos.";
+    errEl.style.display = "block";
     return;
   }
-
-  if (golesLocal < 0 || golesVisitante < 0) {
-    _mostrarError(errorEl, "Los goles no pueden ser negativos.");
-    return;
-  }
-
-  if (resolucion === "penales") {
-    if (golesLocal !== golesVisitante) {
-      _mostrarError(errorEl, "Si hay penales, el marcador en 90' debe estar empatado.");
+  if (resol === "penales") {
+    if (gl !== gv) {
+      errEl.textContent = "Con penales, el marcador en 90' debe estar empatado.";
+      errEl.style.display = "block";
       return;
     }
-    if (penalesLocal === null || penalesVis === null) {
-      _mostrarError(errorEl, "Ingresá el resultado de los penales.");
-      return;
-    }
-    if (penalesLocal === penalesVis) {
-      _mostrarError(errorEl, "Los penales no pueden terminar empatados.");
+    if (pl === null || pv === null || pl === pv) {
+      errEl.textContent = "Ingresá penales válidos (no pueden empatar).";
+      errEl.style.display = "block";
       return;
     }
   }
 
-  errorEl.style.display = "none";
-
-  // Actualizar bracket
   _bracket = registrarGanador(_bracket, _partidoActivo.id, {
-    golesLocal,
-    golesVisitante,
-    resolucion,
-    penalesLocal,
-    penalesVisitante: penalesVis,
+    golesLocal: gl, golesVisitante: gv,
+    resolucion: resol, penalesLocal: pl, penalesVisitante: pv,
   });
 
   _guardarBracket();
-  _cerrarModal(modal);
+  _cerrarModal(overlay);
   _renderBracket();
 
-  // Animación de celebración si hay campeón
-  if (_bracket.campeon) {
-    _celebrarCampeon();
-  }
+  if (_bracket.campeon) _celebrar();
 }
 
-function _mostrarError(el, msg) {
-  el.textContent    = msg;
-  el.style.display  = "block";
-  el.style.animation = "none";
-  el.offsetHeight;  // reflow
-  el.style.animation = "";
+function _cerrarModal(overlay) {
+  overlay.classList.remove("active");
+  _partidoActivo = null;
 }
 
-function _cerrarModal(modal) {
-  modal.classList.remove("active");
-  _modalAbierto    = false;
-  _partidoActivo   = null;
-}
-
-function _confirmarReset(partidoId) {
-  if (!confirm(`¿Resetear el resultado de ${partidoId}? Esto también limpiará los partidos siguientes.`)) return;
-  _bracket = resetearPartido(_bracket, partidoId);
-  _guardarBracket();
-  _renderBracket();
-}
-
-// ─── HELPERS ────────────────────────────────────────────
-
-function _encontrarPartidoEnBracket(id) {
-  for (const ronda of Object.values(_bracket.rondas)) {
+// ─── HELPERS ──────────────────────────────────────────────
+function _buscarPartido(id) {
+  for (const ronda of Object.values(_bracket?.rondas ?? {})) {
     if (!Array.isArray(ronda)) continue;
     const p = ronda.find(p => p.id === id);
     if (p) return p;
@@ -473,7 +368,6 @@ function _encontrarPartidoEnBracket(id) {
 }
 
 function _tieneDatosReales() {
-  // El bracket tiene datos si al menos un partido tiene un ganador
   for (const ronda of Object.values(_bracket?.rondas ?? {})) {
     if (!Array.isArray(ronda)) continue;
     if (ronda.some(p => p.ganador)) return true;
@@ -481,37 +375,18 @@ function _tieneDatosReales() {
   return false;
 }
 
-function _forzarBracketDemo() {
-  // Modo demo: construir bracket con los datos actuales aunque no esté completa la fase de grupos
-  _bracket = construirBracket(null);
-  _guardarBracket();
-  _renderBracket();
-}
-
-function _celebrarCampeon() {
+function _celebrar() {
   const cel = document.getElementById("celebracion");
   if (!cel) return;
-
-  const colores = ["#c9a84c","#e8c96a","#ffffff","#74b9ff","#2ecc71"];
-  const cantidad = 80;
-
-  for (let i = 0; i < cantidad; i++) {
-    const papel     = document.createElement("div");
-    papel.className = "papel";
-    papel.style.cssText = [
-      `left: ${Math.random() * 100}%`,
-      `background: ${colores[Math.floor(Math.random() * colores.length)]}`,
-      `--dur: ${1.5 + Math.random() * 2}s`,
-      `--drift: ${(Math.random() - 0.5) * 200}px`,
-      `animation-delay: ${Math.random() * 0.8}s`,
-    ].join(";");
-    cel.appendChild(papel);
+  const colores = ["#c9a84c","#e8c96a","#fff","#74b9ff","#2ecc71"];
+  for (let i = 0; i < 100; i++) {
+    const p = document.createElement("div");
+    p.className = "papel";
+    p.style.cssText = `left:${Math.random()*100}%;background:${colores[i%colores.length]};--dur:${1.5+Math.random()*2}s;--drift:${(Math.random()-.5)*200}px;animation-delay:${Math.random()*.8}s`;
+    cel.appendChild(p);
   }
-
-  setTimeout(() => { cel.innerHTML = ""; }, 4000);
+  setTimeout(() => { cel.innerHTML = ""; }, 4500);
 }
-
-// ─── RESET TOTAL (para testing) ─────────────────────────
 
 export function resetBracketCompleto() {
   localStorage.removeItem(LS_KEY);
