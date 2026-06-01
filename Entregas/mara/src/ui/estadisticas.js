@@ -1,12 +1,11 @@
-// src/ui/estadisticas.js
-// Renderiza la sección de estadísticas
-
-import { getTopGoleadores, getTopAsistidores,
-         getResumenTorneo }              from "../logic/estadisticas.js";
-import { getEquipoPorId }               from "../data/equipos.js";
+import {
+  getTopGoleadores, getTopAsistidores,
+  getResumenTorneo
+} from "../logic/estadisticas.js";
+import { getEquipoPorId } from "../data/equipos.js";
 
 export function renderEstadisticas() {
-  _renderTop("topGoleadores",  getTopGoleadores(),  "⚽ goles");
+  _renderTop("topGoleadores", getTopGoleadores(), "⚽ goles");
   _renderTop("topAsistidores", getTopAsistidores(), "🎯 asistencias");
   _renderResumen();
 }
@@ -35,7 +34,7 @@ function _renderTop(elId, lista, unidad) {
 }
 
 function _renderResumen() {
-  const el  = document.getElementById("statsResumen");
+  const el = document.getElementById("statsResumen");
   const res = getResumenTorneo();
   if (!el) return;
 

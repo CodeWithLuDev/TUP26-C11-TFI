@@ -1,12 +1,8 @@
-// src/ui/grupos.js
-// Renderiza la fase de grupos en el DOM
-// NUNCA contiene lógica de cálculo
-
-import { GRUPOS }             from "../data/equipos.js";
+import { GRUPOS } from "../data/equipos.js";
 import { calcularTablaGrupo } from "../logic/posiciones.js";
 
 const contenedor = () => document.getElementById("gruposContenido");
-const tabsEl     = () => document.getElementById("gruposTabs");
+const tabsEl = () => document.getElementById("gruposTabs");
 
 let grupoActivo = "A";
 
@@ -115,7 +111,7 @@ export function actualizarTablaGrupo(grupo) {
 
     // Flashear filas que cambiaron
     document.querySelectorAll("#gruposContenido tr[data-equipo]").forEach(tr => {
-      const id    = tr.dataset.equipo;
+      const id = tr.dataset.equipo;
       const antes = filasAntes[id];
       const ahora = tr.querySelector("td:last-child")?.textContent?.trim();
       if (antes !== undefined && antes !== ahora) {

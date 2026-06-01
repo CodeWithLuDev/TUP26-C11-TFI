@@ -1,34 +1,32 @@
-// src/ui/modal.js
-// Modal de carga de resultados y goles
-// Coordina UI con lógica de state
-
-import { getPartidoPorId }               from "../data/partidos.js";
-import { getEquipoPorId }                from "../data/equipos.js";
-import { getPlantelPorEquipo }           from "../data/jugadores.js";
-import { guardarResultado, borrarResultado,
-         guardarGol, borrarGolesDePartido,
-         getResultadoPartido }           from "../logic/state.js";
+import { getPartidoPorId } from "../data/partidos.js";
+import { getEquipoPorId } from "../data/equipos.js";
+import { getPlantelPorEquipo } from "../data/jugadores.js";
+import {
+  guardarResultado, borrarResultado,
+  guardarGol, borrarGolesDePartido,
+  getResultadoPartido
+} from "../logic/state.js";
 import { renderFixture, attachFixtureListeners } from "./fixture.js";
-import { actualizarTablaGrupo }          from "./grupos.js";
-import { lanzarCelebracion }             from "./celebracion.js";
-import { renderEstadisticas }            from "./estadisticas.js";
+import { actualizarTablaGrupo } from "./grupos.js";
+import { lanzarCelebracion } from "./celebracion.js";
+import { renderEstadisticas } from "./estadisticas.js";
 
 const overlay = () => document.getElementById("modalOverlay");
-const body    = () => document.getElementById("modalBody");
+const body = () => document.getElementById("modalBody");
 
 let _partidoActual = null;
 // Cola de goles cargados en el modal (antes de confirmar)
-let _golesEnCurso  = [];
+let _golesEnCurso = [];
 
 // ─── ABRIR ────────────────────────────────────────────────
 export function abrirModalResultado(partidoId) {
   _partidoActual = partidoId;
-  _golesEnCurso  = [];
+  _golesEnCurso = [];
 
-  const p    = getPartidoPorId(partidoId);
-  const eqL  = getEquipoPorId(p.local);
-  const eqV  = getEquipoPorId(p.visitante);
-  const res  = getResultadoPartido(partidoId);
+  const p = getPartidoPorId(partidoId);
+  const eqL = getEquipoPorId(p.local);
+  const eqV = getEquipoPorId(p.visitante);
+  const res = getResultadoPartido(partidoId);
 
   body().innerHTML = _renderModalBody(p, eqL, eqV, res);
   overlay().classList.add("active");
@@ -40,7 +38,7 @@ export function abrirModalResultado(partidoId) {
 export function cerrarModal() {
   overlay().classList.remove("active");
   _partidoActual = null;
-  _golesEnCurso  = [];
+  _golesEnCurso = [];
 }
 
 // ─── INIT (listeners globales del modal) ─────────────────
@@ -59,8 +57,8 @@ export function initModal() {
 
 // ─── RENDER DEL BODY ──────────────────────────────────────
 function _renderModalBody(p, eqL, eqV, res) {
-  const glActual = res?.local      ?? "";
-  const gvActual = res?.visitante  ?? "";
+  const glActual = res?.local ?? "";
+  const gvActual = res?.visitante ?? "";
 
   return `
     <!-- Marcador -->
@@ -191,9 +189,9 @@ function _attachModalListeners(p, eqL, eqV) {
   // Agregar gol a la lista temporal
   document.getElementById("btnAgregarGol")
     ?.addEventListener("click", () => {
-      const goleador   = document.getElementById("selectGoleador")?.value;
-      const asistidor  = document.getElementById("selectAsistidor")?.value;
-      const selectGol  = document.getElementById("selectGoleador");
+      const goleador = document.getElementById("selectGoleador")?.value;
+      const asistidor = document.getElementById("selectAsistidor")?.value;
+      const selectGol = document.getElementById("selectGoleador");
 
       if (!goleador) return;
 

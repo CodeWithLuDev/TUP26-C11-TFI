@@ -1,7 +1,3 @@
-// src/logic/estadisticas.js
-// Gestión de goleadores y asistidores
-// NUNCA manipula el DOM
-
 import { getGoles } from "./state.js";
 
 // ─── TOP GOLEADORES ───────────────────────────────────────
@@ -16,16 +12,16 @@ export function getTopAsistidores(limite = 10) {
 
 // ─── RESUMEN GENERAL ─────────────────────────────────────
 export function getResumenTorneo() {
-  const todos     = getGoles();
-  const goles     = todos.filter(g => g.tipo === "gol");
-  const partidos  = [...new Set(todos.map(g => g.partidoId))];
-  const equipos   = [...new Set(todos.map(g => g.equipoId))];
+  const todos = getGoles();
+  const goles = todos.filter(g => g.tipo === "gol");
+  const partidos = [...new Set(todos.map(g => g.partidoId))];
+  const equipos = [...new Set(todos.map(g => g.equipoId))];
 
   return {
-    totalGoles:       goles.length,
-    totalPartidos:    partidos.length,
-    equiposConGoles:  equipos.length,
-    promedioGoles:    partidos.length > 0
+    totalGoles: goles.length,
+    totalPartidos: partidos.length,
+    equiposConGoles: equipos.length,
+    promedioGoles: partidos.length > 0
       ? (goles.length / partidos.length).toFixed(2)
       : "0.00",
   };

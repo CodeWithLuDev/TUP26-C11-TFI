@@ -1,13 +1,4 @@
-// src/data/partidos.js
-// Calendario OFICIAL fase de grupos - Mundial 2026
-// Horarios en GMT-3 (Argentina)
-// Fuente: FIFA / ESPN Deportes - Diciembre 2025
-
 export const PARTIDOS = [
-
-  // ══════════════════════════════════════════
-  // JORNADA 1
-  // ══════════════════════════════════════════
 
   // ─── Jueves 11/06 ─────────────────────────
   { id: "A1", grupo: "A", jornada: 1, local: "MEX", visitante: "RSA", fecha: "2026-06-11", hora: "16:00", sede: "Estadio Azteca, Ciudad de México" },
@@ -47,10 +38,6 @@ export const PARTIDOS = [
   { id: "L2", grupo: "L", jornada: 1, local: "GHA", visitante: "PAN", fecha: "2026-06-17", hora: "20:00", sede: "AT&T Stadium, Dallas" },
   { id: "K2", grupo: "K", jornada: 1, local: "UZB", visitante: "COL", fecha: "2026-06-17", hora: "23:00", sede: "Estadio Azteca, Ciudad de México" },
 
-  // ══════════════════════════════════════════
-  // JORNADA 2
-  // ══════════════════════════════════════════
-
   // ─── Jueves 18/06 ─────────────────────────
   { id: "A3", grupo: "A", jornada: 2, local: "CZE", visitante: "RSA", fecha: "2026-06-18", hora: "13:00", sede: "Mercedes-Benz Stadium, Atlanta" },
   { id: "B3", grupo: "B", jornada: 2, local: "SUI", visitante: "BIH", fecha: "2026-06-18", hora: "16:00", sede: "SoFi Stadium, Los Ángeles" },
@@ -86,10 +73,6 @@ export const PARTIDOS = [
   { id: "L3", grupo: "L", jornada: 2, local: "ENG", visitante: "GHA", fecha: "2026-06-23", hora: "17:00", sede: "Lincoln Financial Field, Philadelphia" },
   { id: "L4", grupo: "L", jornada: 2, local: "CRO", visitante: "PAN", fecha: "2026-06-23", hora: "20:00", sede: "AT&T Stadium, Dallas" },
   { id: "K4", grupo: "K", jornada: 2, local: "COD", visitante: "COL", fecha: "2026-06-23", hora: "23:00", sede: "Estadio Akron, Guadalajara" },
-
-  // ══════════════════════════════════════════
-  // JORNADA 3 — partidos simultáneos por grupo
-  // ══════════════════════════════════════════
 
   // ─── Martes 24/06 ─────────────────────────
   { id: "A5", grupo: "A", jornada: 3, local: "MEX", visitante: "CZE", fecha: "2026-06-24", hora: "20:00", sede: "Estadio Azteca, Ciudad de México" },
@@ -128,33 +111,25 @@ export const PARTIDOS = [
   { id: "L6", grupo: "L", jornada: 3, local: "CRO", visitante: "GHA", fecha: "2026-06-29", hora: "23:00", sede: "AT&T Stadium, Dallas" },
 ];
 
-// ─── HELPERS ────────────────────────────────────────────
-
-// Partidos de un grupo específico
 export function getPartidosPorGrupo(grupo) {
   return PARTIDOS.filter(p => p.grupo === grupo);
 }
 
-// Partidos de una jornada específica
 export function getPartidosPorJornada(jornada) {
   return PARTIDOS.filter(p => p.jornada === jornada);
 }
 
-// Partidos de una fecha específica (YYYY-MM-DD)
 export function getPartidosPorFecha(fecha) {
   return PARTIDOS.filter(p => p.fecha === fecha);
 }
 
-// Partido por ID
 export function getPartidoPorId(id) {
   return PARTIDOS.find(p => p.id === id);
 }
 
-// Partidos de hoy
 export function getPartidosHoy() {
   const hoy = new Date().toISOString().split("T")[0];
   return PARTIDOS.filter(p => p.fecha === hoy);
 }
 
-// Todas las fechas únicas del torneo (ordenadas)
 export const FECHAS = [...new Set(PARTIDOS.map(p => p.fecha))].sort();

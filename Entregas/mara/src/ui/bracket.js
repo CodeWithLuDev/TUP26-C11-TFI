@@ -1,6 +1,3 @@
-// src/ui/bracket.js
-// UI del árbol de playoffs — renderiza y gestiona interacciones
-
 import {
   construirBracket, registrarGanador,
   resetearPartido, isFaseGruposCompleta,
@@ -8,7 +5,7 @@ import {
 } from "../logic/playoffs.js";
 
 const LS_KEY = "copa_potrero_bracket_v1";
-let _bracket       = null;
+let _bracket = null;
 let _partidoActivo = null;
 
 // ─── INIT ─────────────────────────────────────────────────
@@ -74,11 +71,11 @@ function _renderBracket() {
   const r = _bracket.rondas;
   const mitad = Math.ceil(r.octavos.length / 2);
 
-  contenedor.appendChild(_columna("OCTAVOS (1–8)",      r.octavos.slice(0, mitad), "octavos"));
+  contenedor.appendChild(_columna("OCTAVOS (1–8)", r.octavos.slice(0, mitad), "octavos"));
   contenedor.appendChild(_conector());
-  contenedor.appendChild(_columna("CUARTOS",            r.cuartos.slice(0, 4),     "cuartos"));
+  contenedor.appendChild(_columna("CUARTOS", r.cuartos.slice(0, 4), "cuartos"));
   contenedor.appendChild(_conector());
-  contenedor.appendChild(_columna("SEMIFINALES",        r.semifinales.slice(0, 2), "semifinales"));
+  contenedor.appendChild(_columna("SEMIFINALES", r.semifinales.slice(0, 2), "semifinales"));
   contenedor.appendChild(_conector());
 
   // Columna central: Final + Campeón + 3er Puesto
@@ -94,11 +91,11 @@ function _renderBracket() {
   contenedor.appendChild(colCentral);
 
   contenedor.appendChild(_conector());
-  contenedor.appendChild(_columna("SEMIFINALES",        r.semifinales.slice(2, 4), "semifinales"));
+  contenedor.appendChild(_columna("SEMIFINALES", r.semifinales.slice(2, 4), "semifinales"));
   contenedor.appendChild(_conector());
-  contenedor.appendChild(_columna("CUARTOS",            r.cuartos.slice(4, 8),     "cuartos"));
+  contenedor.appendChild(_columna("CUARTOS", r.cuartos.slice(4, 8), "cuartos"));
   contenedor.appendChild(_conector());
-  contenedor.appendChild(_columna("OCTAVOS (9–16)",     r.octavos.slice(mitad),    "octavos"));
+  contenedor.appendChild(_columna("OCTAVOS (9–16)", r.octavos.slice(mitad), "octavos"));
 
   _bindEventos(contenedor);
 }
@@ -128,7 +125,7 @@ function _conector() {
 // ─── CARD DE PARTIDO ──────────────────────────────────────
 function _cardPartido(partido, rondaKey) {
   const { local, visitante, estado, resolucion, ganador, id } = partido;
-  const jugado    = estado === "jugado";
+  const jugado = estado === "jugado";
   const pendiente = estado === "pendiente";
 
   const claseCard = `bracket-llave ${jugado ? "bracket-llave--jugado" : ""} ${pendiente && !local.equipo?.nombre?.includes("TBD") ? "bracket-llave--activo" : ""}`;
@@ -147,19 +144,19 @@ function _cardPartido(partido, rondaKey) {
         ${badge}
         ${boton}
       </div>
-      ${_equipoFila(local,     ganador, jugado, true)}
+      ${_equipoFila(local, ganador, jugado, true)}
       ${_equipoFila(visitante, ganador, jugado, false)}
     </div>
   `;
 }
 
 function _equipoFila(lado, ganador, jugado, esLocal) {
-  const eq      = lado.equipo;
-  const esTBD   = !eq || eq.id === "TBD" || eq.nombre?.startsWith("TBD");
+  const eq = lado.equipo;
+  const esTBD = !eq || eq.id === "TBD" || eq.nombre?.startsWith("TBD");
   const esGanador = jugado && ganador === eq?.id;
 
   const goles = lado.goles !== null ? lado.goles : "–";
-  const pen   = lado.penales !== null ? `<span class="bracket-penales">(${lado.penales})</span>` : "";
+  const pen = lado.penales !== null ? `<span class="bracket-penales">(${lado.penales})</span>` : "";
 
   return `
     <div class="bracket-equipo ${esGanador ? "bracket-equipo--ganador" : ""} ${esTBD ? "bracket-equipo--tbd" : ""}">
@@ -215,11 +212,11 @@ function _abrirModal(partidoId) {
   overlay.querySelector(".bm-vis-nombre").textContent =
     `${p.visitante.equipo?.bandera ?? "🏳️"} ${p.visitante.equipo?.nombre ?? "TBD"}`;
 
-  overlay.querySelector("#bmGolesL").value   = p.local.goles     ?? "";
-  overlay.querySelector("#bmGolesV").value   = p.visitante.goles ?? "";
-  overlay.querySelector("#bmPenL").value     = p.local.penales   ?? "";
-  overlay.querySelector("#bmPenV").value     = p.visitante.penales ?? "";
-  overlay.querySelector("#bmResol").value    = p.resolucion ?? "normal";
+  overlay.querySelector("#bmGolesL").value = p.local.goles ?? "";
+  overlay.querySelector("#bmGolesV").value = p.visitante.goles ?? "";
+  overlay.querySelector("#bmPenL").value = p.local.penales ?? "";
+  overlay.querySelector("#bmPenV").value = p.visitante.penales ?? "";
+  overlay.querySelector("#bmResol").value = p.resolucion ?? "normal";
   overlay.querySelector("#bmError").style.display = "none";
 
   _togglePen(overlay, p.resolucion ?? "normal");
@@ -229,7 +226,7 @@ function _abrirModal(partidoId) {
 
 function _crearModal() {
   const overlay = document.createElement("div");
-  overlay.id        = "bracketModalOverlay";
+  overlay.id = "bracketModalOverlay";
   overlay.className = "modal-overlay";
 
   overlay.innerHTML = `
@@ -293,14 +290,14 @@ function _crearModal() {
     </div>
   `;
 
-  overlay.querySelector("#bmCerrar").addEventListener("click",   () => _cerrarModal(overlay));
+  overlay.querySelector("#bmCerrar").addEventListener("click", () => _cerrarModal(overlay));
   overlay.querySelector("#bmCancelar").addEventListener("click", () => _cerrarModal(overlay));
-  overlay.querySelector("#bmConfirmar").addEventListener("click",() => _confirmar(overlay));
-  overlay.querySelector("#bmResol").addEventListener("change",   e => _togglePen(overlay, e.target.value));
+  overlay.querySelector("#bmConfirmar").addEventListener("click", () => _confirmar(overlay));
+  overlay.querySelector("#bmResol").addEventListener("change", e => _togglePen(overlay, e.target.value));
   overlay.addEventListener("click", e => { if (e.target === overlay) _cerrarModal(overlay); });
   overlay.addEventListener("keydown", e => {
     if (e.key === "Escape") _cerrarModal(overlay);
-    if (e.key === "Enter")  _confirmar(overlay);
+    if (e.key === "Enter") _confirmar(overlay);
   });
 
   return overlay;
@@ -314,11 +311,11 @@ function _togglePen(overlay, resol) {
 function _confirmar(overlay) {
   if (!_partidoActivo) return;
 
-  const gl   = parseInt(overlay.querySelector("#bmGolesL").value);
-  const gv   = parseInt(overlay.querySelector("#bmGolesV").value);
+  const gl = parseInt(overlay.querySelector("#bmGolesL").value);
+  const gv = parseInt(overlay.querySelector("#bmGolesV").value);
   const resol = overlay.querySelector("#bmResol").value;
-  const pl   = parseInt(overlay.querySelector("#bmPenL").value) || null;
-  const pv   = parseInt(overlay.querySelector("#bmPenV").value) || null;
+  const pl = parseInt(overlay.querySelector("#bmPenL").value) || null;
+  const pv = parseInt(overlay.querySelector("#bmPenV").value) || null;
   const errEl = overlay.querySelector("#bmError");
 
   // Validaciones
@@ -378,11 +375,11 @@ function _tieneDatosReales() {
 function _celebrar() {
   const cel = document.getElementById("celebracion");
   if (!cel) return;
-  const colores = ["#c9a84c","#e8c96a","#fff","#74b9ff","#2ecc71"];
+  const colores = ["#c9a84c", "#e8c96a", "#fff", "#74b9ff", "#2ecc71"];
   for (let i = 0; i < 100; i++) {
     const p = document.createElement("div");
     p.className = "papel";
-    p.style.cssText = `left:${Math.random()*100}%;background:${colores[i%colores.length]};--dur:${1.5+Math.random()*2}s;--drift:${(Math.random()-.5)*200}px;animation-delay:${Math.random()*.8}s`;
+    p.style.cssText = `left:${Math.random() * 100}%;background:${colores[i % colores.length]};--dur:${1.5 + Math.random() * 2}s;--drift:${(Math.random() - .5) * 200}px;animation-delay:${Math.random() * .8}s`;
     cel.appendChild(p);
   }
   setTimeout(() => { cel.innerHTML = ""; }, 4500);

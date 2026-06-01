@@ -1,12 +1,8 @@
-// src/ui/fixture.js
-// Renderiza el fixture interactivo con filtros
-// NUNCA contiene lógica de cálculo
-
 import { PARTIDOS, getPartidosHoy, FECHAS } from "../data/partidos.js";
-import { getEquipoPorId }                   from "../data/equipos.js";
-import { getResultadoPartido }              from "../logic/state.js";
-import { getZonaHoraria }                   from "../logic/state.js";
-import { abrirModalResultado }              from "./modal.js";
+import { getEquipoPorId } from "../data/equipos.js";
+import { getResultadoPartido } from "../logic/state.js";
+import { getZonaHoraria } from "../logic/state.js";
+import { abrirModalResultado } from "./modal.js";
 
 const contenedor = () => document.getElementById("fixtureContenido");
 
@@ -155,7 +151,7 @@ function _getPartidosPorFechaAgrupados() {
 
 function _getPartidosPorGrupoAgrupados() {
   const grupos = {};
-  ["A","B","C","D","E","F","G","H","I","J","K","L"].forEach(g => {
+  ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"].forEach(g => {
     const ps = PARTIDOS.filter(p => p.grupo === g);
     if (ps.length) grupos[g] = ps;
   });
@@ -165,7 +161,7 @@ function _getPartidosPorGrupoAgrupados() {
 // ─── HELPERS DE FORMATO ───────────────────────────────────
 function _formatFecha(fechaISO) {
   const [y, m, d] = fechaISO.split("-");
-  const meses = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   return `${parseInt(d)} ${meses[parseInt(m) - 1]}`;
 }
 
@@ -177,7 +173,7 @@ function _ajustarHora(horaStr, fechaStr) {
   const baseOffset = -3; // horarios base en GMT-3
   const diff = zonaOffset - baseOffset;
   let nuevaHora = h + diff;
-  if (nuevaHora < 0)  nuevaHora += 24;
+  if (nuevaHora < 0) nuevaHora += 24;
   if (nuevaHora >= 24) nuevaHora -= 24;
-  return `${String(nuevaHora).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+  return `${String(nuevaHora).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }

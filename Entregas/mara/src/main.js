@@ -1,6 +1,3 @@
-// src/main.js
-// Punto de entrada — ensambla todos los módulos
-
 import { initGrupos } from "./ui/grupos.js";
 import { initFixture } from "./ui/fixture.js";
 import { initModal } from "./ui/modal.js";

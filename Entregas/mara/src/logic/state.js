@@ -1,10 +1,6 @@
-// src/logic/state.js
-// Fuente de verdad única — Lee y escribe en LocalStorage
-// NUNCA manipula el DOM — solo datos
-
 const KEYS = {
-  RESULTADOS:   "cp26_resultados",
-  GOLES:        "cp26_goles",
+  RESULTADOS: "cp26_resultados",
+  GOLES: "cp26_goles",
   ZONA_HORARIA: "cp26_zona",
 };
 
@@ -19,9 +15,9 @@ export function getResultados() {
 export function guardarResultado(partidoId, golesLocal, golesVisitante) {
   const resultados = getResultados();
   resultados[partidoId] = {
-    local:      parseInt(golesLocal, 10),
-    visitante:  parseInt(golesVisitante, 10),
-    jugado:     true,
+    local: parseInt(golesLocal, 10),
+    visitante: parseInt(golesVisitante, 10),
+    jugado: true,
   };
   localStorage.setItem(KEYS.RESULTADOS, JSON.stringify(resultados));
 }

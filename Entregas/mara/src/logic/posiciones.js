@@ -1,22 +1,18 @@
-// src/logic/posiciones.js
-// Calcula tablas de posiciones con criterios FIFA
-// NUNCA manipula el DOM
-
 import { getEquiposPorGrupo } from "../data/equipos.js";
 import { getPartidosPorGrupo } from "../data/partidos.js";
-import { getResultados }        from "./state.js";
+import { getResultados } from "./state.js";
 
 // ─── CALCULAR TABLA DE UN GRUPO ───────────────────────────
 export function calcularTablaGrupo(grupo) {
-  const equipos    = getEquiposPorGrupo(grupo);
-  const partidos   = getPartidosPorGrupo(grupo);
+  const equipos = getEquiposPorGrupo(grupo);
+  const partidos = getPartidosPorGrupo(grupo);
   const resultados = getResultados();
 
   // Inicializar stats por equipo
   const stats = {};
   equipos.forEach(eq => {
     stats[eq.id] = {
-      id:    eq.id,
+      id: eq.id,
       nombre: eq.nombre,
       bandera: eq.bandera,
       PJ: 0, PG: 0, PE: 0, PP: 0,
@@ -87,9 +83,9 @@ export function calcularTablaGrupo(grupo) {
     // 1. Puntos
     if (b.PTS !== a.PTS) return b.PTS - a.PTS;
     // 2. Diferencia de goles
-    if (b.DG !== a.DG)   return b.DG - a.DG;
+    if (b.DG !== a.DG) return b.DG - a.DG;
     // 3. Goles a favor
-    if (b.GF !== a.GF)   return b.GF - a.GF;
+    if (b.GF !== a.GF) return b.GF - a.GF;
     // 4. Enfrentamiento directo (puntos)
     const dA = a._directos[b.id]?.PTS ?? 0;
     const dB = b._directos[a.id]?.PTS ?? 0;
@@ -107,7 +103,7 @@ export function calcularTablaGrupo(grupo) {
 
 // ─── CALCULAR TODAS LAS TABLAS ────────────────────────────
 export function calcularTodasLasTablas() {
-  const grupos = ["A","B","C","D","E","F","G","H","I","J","K","L"];
+  const grupos = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
   const tablas = {};
   grupos.forEach(g => { tablas[g] = calcularTablaGrupo(g); });
   return tablas;
@@ -118,15 +114,15 @@ export function calcularTodasLasTablas() {
 export function getClasificadosGrupo(grupo) {
   const tabla = calcularTablaGrupo(grupo);
   return {
-    primero:  tabla[0] ?? null,
-    segundo:  tabla[1] ?? null,
-    tercero:  tabla[2] ?? null,
+    primero: tabla[0] ?? null,
+    segundo: tabla[1] ?? null,
+    tercero: tabla[2] ?? null,
   };
 }
 
 // ─── VERIFICAR SI UN GRUPO TERMINÓ ────────────────────────
 export function grupoTerminado(grupo) {
-  const partidos   = getPartidosPorGrupo(grupo);
+  const partidos = getPartidosPorGrupo(grupo);
   const resultados = getResultados();
   return partidos.every(p => resultados[p.id]?.jugado === true);
 }

@@ -1,5 +1,3 @@
-// src/data/jugadores.js
-
 import { MEX, RSA, KOR, CZE } from "./jugadores/grupoA.js";
 import { CAN, BIH, QAT, SUI } from "./jugadores/grupoB.js";
 import { BRA, MAR, HAI, SCO } from "./jugadores/grupoC.js";
@@ -34,7 +32,7 @@ export function getPlantelPorEquipo(equipoId) {
 
 export function getJugadoresPartido(localId, visitanteId) {
   return {
-    local:     getPlantelPorEquipo(localId),
+    local: getPlantelPorEquipo(localId),
     visitante: getPlantelPorEquipo(visitanteId),
   };
 }

@@ -1,9 +1,6 @@
-// src/ui/celebracion.js
-// Efecto de papelitos al confirmar resultado
-
 const COLORES = [
-  "#c9a84c","#e8c96a","#74b9ff","#00ff88",
-  "#ff6b6b","#fff","#a29bfe","#fd79a8",
+  "#c9a84c", "#e8c96a", "#74b9ff", "#00ff88",
+  "#ff6b6b", "#fff", "#a29bfe", "#fd79a8",
 ];
 
 export function lanzarCelebracion() {
@@ -18,13 +15,13 @@ export function lanzarCelebracion() {
     const papel = document.createElement("div");
     papel.className = "papel";
 
-    const x     = Math.random() * 100;          // posición horizontal %
-    const dur   = 1.5 + Math.random() * 1.5;    // duración segundos
+    const x = Math.random() * 100;          // posición horizontal %
+    const dur = 1.5 + Math.random() * 1.5;    // duración segundos
     const drift = (Math.random() - 0.5) * 200;  // desplazamiento horizontal px
     const color = COLORES[Math.floor(Math.random() * COLORES.length)];
     const delay = Math.random() * 0.8;
-    const rot   = Math.random() > 0.5 ? "3px" : "8px";
-    const alto  = 8 + Math.random() * 8;
+    const rot = Math.random() > 0.5 ? "3px" : "8px";
+    const alto = 8 + Math.random() * 8;
 
     papel.style.cssText = `
       left: ${x}%;
