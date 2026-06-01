@@ -19,7 +19,7 @@ export const EQUIPOS = [
   { id: "BRA", nombre: "Brasil",        grupo: "C", conf: "CONMEBOL", bandera: "🇧🇷" },
   { id: "MAR", nombre: "Marruecos",     grupo: "C", conf: "CAF",      bandera: "🇲🇦" },
   { id: "HAI", nombre: "Haití",         grupo: "C", conf: "CONCACAF", bandera: "🇭🇹" },
-  { id: "SCO", nombre: "Escocia",       grupo: "C", conf: "UEFA",     bandera: "🏴󠁧󠁢󠁳󠁣󠁴󠁿" },
+  { id: "SCO", nombre: "Escocia",       grupo: "C", conf: "UEFA",     bandera: "🏴󠁧󠁢󠁳" },
 
   // ─── GRUPO D ───────────────────────────────────────────
   { id: "USA", nombre: "Estados Unidos",grupo: "D", conf: "CONCACAF", bandera: "🇺🇸", sede: "host" },
