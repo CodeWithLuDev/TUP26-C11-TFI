@@ -62,31 +62,32 @@ export function initAlbum() {
   const validos = EQUIPOS.filter(eq => getPlantelPorEquipo(eq.id)?.length > 0);
   if (!_equipoActivo && validos.length) _equipoActivo = validos[0].id;
 
-  _renderEstructura(validos);
+  _renderSelector(validos);
   _renderFiguritas();
   _bindEventos();
 }
 
-function _renderEstructura(validos) {
-  const s = document.querySelector(".album-section");
-  if (!s) return;
-  s.innerHTML = `
-    <div class="album-section__header">
-      <h2 class="album-section__titulo">
-        <span class="album-badge">PANINI</span> ÁLBUM POTRERO '26
-      </h2>
-      <div class="album-filtro">
-        <label for="albumEquipoSelect" class="album-filtro__label">Ver plantel de:</label>
-        <select id="albumEquipoSelect" class="album-desplegable-equipos">
-          ${validos.map(eq => `
-            <option value="${eq.id}" ${_equipoActivo === eq.id ? "selected" : ""}>
-              ${eq.bandera} ${eq.nombre}
-            </option>`).join("")}
-        </select>
-      </div>
-    </div>
-    <div id="albumFiguritas" class="album-figuritas"></div>
-  `;
+function _renderSelector(validos) {
+  const cont = document.getElementById("albumEscudos");
+  if (!cont) return;
+
+  const lbl = document.querySelector(".album-filtro__label");
+  if (lbl) lbl.setAttribute("for", "albumEquipoSelect");
+
+  const sel = document.createElement("select");
+  sel.id = "albumEquipoSelect";
+  sel.className = "album-desplegable-equipos";
+
+  validos.forEach(eq => {
+    const opt = document.createElement("option");
+    opt.value = eq.id;
+    if (_equipoActivo === eq.id) opt.selected = true;
+    opt.textContent = `${eq.bandera} ${eq.nombre}`;
+    sel.appendChild(opt);
+  });
+
+  cont.innerHTML = "";
+  cont.appendChild(sel);
 }
 
 function _renderFiguritas() {
