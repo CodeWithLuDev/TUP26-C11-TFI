@@ -166,12 +166,12 @@ function _bindEventos() {
   document.getElementById("albumEquipoSelect")
     ?.addEventListener("change", e => {
       _equipoActivo = e.target.value;
-      localStorage.setItem(LS_KEY, JSON.stringify({ equipoActivo: _equipoActivo }));
+      try { localStorage.setItem(LS_KEY, JSON.stringify({ equipoActivo: _equipoActivo })); } catch {}
       _renderFiguritas();
     });
 }
 
 export function resetAlbum() {
-  localStorage.removeItem(LS_KEY);
+  try { localStorage.removeItem(LS_KEY); } catch {}
   initAlbum();
 }

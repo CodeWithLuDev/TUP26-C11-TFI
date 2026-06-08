@@ -1,6 +1,6 @@
 export const CAN = [
   { dorsal: 1, nombre: "Maxime Crépeau", pos: "GK", club: "LA Galaxy" },
-  { dorsal: 12, nombre: "Milan Borjan", pos: "GK", club: "Red Star Belgrade" },
+  { dorsal: 12, nombre: "Dayne St. Clair", pos: "GK", club: "Minnesota United" },
   { dorsal: 23, nombre: "James Pantemis", pos: "GK", club: "CF Montréal" },
   { dorsal: 2, nombre: "Richie Laryea", pos: "DEF", club: "Nottingham Forest" },
   { dorsal: 3, nombre: "Alphonso Davies", pos: "DEF", club: "Bayern Munich" },
@@ -8,9 +8,9 @@ export const CAN = [
   { dorsal: 5, nombre: "Derek Cornelius", pos: "DEF", club: "Panathinaikos" },
   { dorsal: 6, nombre: "Kamal Miller", pos: "DEF", club: "CF Montréal" },
   { dorsal: 13, nombre: "Alistair Johnston", pos: "DEF", club: "Celtic" },
-  { dorsal: 14, nombre: "Doneil Henry", pos: "DEF", club: "Sin club" },
+  { dorsal: 14, nombre: "Moïse Bombito", pos: "DEF", club: "Nice" },
   { dorsal: 22, nombre: "Joel Waterman", pos: "DEF", club: "CF Montréal" },
-  { dorsal: 8, nombre: "Atiba Hutchinson", pos: "MID", club: "Sin club" },
+  { dorsal: 8, nombre: "Nathan Saliba", pos: "MID", club: "CF Montréal" },
   { dorsal: 10, nombre: "Jonathan David", pos: "MID", club: "Lille" },
   { dorsal: 15, nombre: "Liam Fraser", pos: "MID", club: "Sin club" },
   { dorsal: 16, nombre: "Mark-Anthony Kaye", pos: "MID", club: "Toronto FC" },
@@ -19,9 +19,9 @@ export const CAN = [
   { dorsal: 20, nombre: "Ismaël Koné", pos: "MID", club: "Watford" },
   { dorsal: 7, nombre: "Cyle Larin", pos: "FWD", club: "Mallorca" },
   { dorsal: 9, nombre: "Tajon Buchanan", pos: "FWD", club: "Inter Milan" },
-  { dorsal: 11, nombre: "Jordyn Huitema", pos: "FWD", club: "Sin club" },
+  { dorsal: 11, nombre: "Tani Oluwaseyi", pos: "FWD", club: "Minnesota United" },
   { dorsal: 19, nombre: "Jacen Russell-Rowe", pos: "FWD", club: "Columbus Crew" },
-  { dorsal: 21, nombre: "Ali Ahmed", pos: "FWD", club: "Sin club" },
+  { dorsal: 21, nombre: "Promise David", pos: "FWD", club: "Union Saint-Gilloise" },
   { dorsal: 24, nombre: "Jacob Shaffelburg", pos: "FWD", club: "Nashville SC" },
   { dorsal: 25, nombre: "Ike Ugbo", pos: "FWD", club: "Troyes" },
   { dorsal: 26, nombre: "Theo Corbeanu", pos: "FWD", club: "Sin club" },
@@ -30,7 +30,7 @@ export const CAN = [
 export const BIH = [
   { dorsal: 1, nombre: "Ibrahim Šehić", pos: "GK", club: "Konyaspor" },
   { dorsal: 12, nombre: "Kenan Pirić", pos: "GK", club: "Watford" },
-  { dorsal: 23, nombre: "Amer Špiljak", pos: "GK", club: "Sin club" },
+  { dorsal: 23, nombre: "Nikola Vasilj", pos: "GK", club: "St. Pauli" },
   { dorsal: 2, nombre: "Sead Kolašinac", pos: "DEF", club: "Sin club" },
   { dorsal: 3, nombre: "Ognjen Vranješ", pos: "DEF", club: "Sin club" },
   { dorsal: 4, nombre: "Ermin Bičakčić", pos: "DEF", club: "Sin club" },
@@ -51,9 +51,9 @@ export const BIH = [
   { dorsal: 19, nombre: "Luka Menalo", pos: "FWD", club: "Sin club" },
   { dorsal: 21, nombre: "Muhamed Bešić", pos: "MID", club: "Sin club" },
   { dorsal: 22, nombre: "Veldin Karić", pos: "DEF", club: "Sin club" },
-  { dorsal: 24, nombre: "Nedim Bajrami", pos: "MID", club: "Sassuolo" },
+  { dorsal: 24, nombre: "Benjamin Tahirović", pos: "MID", club: "Brøndby" },
   { dorsal: 25, nombre: "Strahinja Tanasijević", pos: "DEF", club: "Sin club" },
-  { dorsal: 26, nombre: "Adnan Džeko", pos: "FWD", club: "Sin club" },
+  { dorsal: 26, nombre: "Amar Memić", pos: "FWD", club: "Viktoria Plzeň" },
 ];
 
 export const QAT = [

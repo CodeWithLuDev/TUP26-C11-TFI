@@ -30,7 +30,7 @@ export const USA = [
 export const PAR = [
   { dorsal: 1, nombre: "Antony Silva", pos: "GK", club: "Sin club" },
   { dorsal: 12, nombre: "Gastón Olveira", pos: "GK", club: "Sin club" },
-  { dorsal: 23, nombre: "Paraguay GK 3", pos: "GK", club: "Por confirmar" },
+  { dorsal: 23, nombre: "Orlando Gill", pos: "GK", club: "San Lorenzo" },
   { dorsal: 2, nombre: "Gustavo Gómez", pos: "DEF", club: "Palmeiras" },
   { dorsal: 3, nombre: "Júnior Alonso", pos: "DEF", club: "Atlético Mineiro" },
   { dorsal: 4, nombre: "Omar Alderete", pos: "DEF", club: "Getafe" },
@@ -52,8 +52,8 @@ export const PAR = [
   { dorsal: 21, nombre: "Sergio Díaz", pos: "FWD", club: "Sin club" },
   { dorsal: 22, nombre: "Diego Gómez", pos: "MID", club: "Inter Miami" },
   { dorsal: 24, nombre: "Omar Romero", pos: "FWD", club: "Sin club" },
-  { dorsal: 25, nombre: "Paraguay FWD 7", pos: "FWD", club: "Por confirmar" },
-  { dorsal: 26, nombre: "Paraguay FWD 8", pos: "FWD", club: "Por confirmar" },
+  { dorsal: 25, nombre: "Isidro Pitta", pos: "FWD", club: "Red Bull Bragantino" },
+  { dorsal: 26, nombre: "Álex Arce", pos: "FWD", club: "Independiente Rivadavia" },
 ];
 
 export const AUS = [
@@ -81,8 +81,8 @@ export const AUS = [
   { dorsal: 21, nombre: "Mitch Duke", pos: "FWD", club: "Fagiano Okayama" },
   { dorsal: 22, nombre: "Awer Mabil", pos: "FWD", club: "Cádiz" },
   { dorsal: 24, nombre: "Jason Cummings", pos: "FWD", club: "Sin club" },
-  { dorsal: 25, nombre: "Australia FWD 7", pos: "FWD", club: "Por confirmar" },
-  { dorsal: 26, nombre: "Australia FWD 8", pos: "FWD", club: "Por confirmar" },
+  { dorsal: 25, nombre: "Mohamed Touré", pos: "FWD", club: "Norwich City" },
+  { dorsal: 26, nombre: "Cristian Volpato", pos: "FWD", club: "Sassuolo" },
 ];
 
 export const TUR = [
