@@ -6,6 +6,7 @@ import { renderEstadisticas } from "./ui/estadisticas.js";
 import { guardarZonaHoraria, getZonaHoraria } from "./logic/state.js";
 import { initBracket } from "./ui/bracket.js";
 import { initAlbum } from "./ui/album.js";
+import { initTheme, initHamburger } from "./logic/ui.js";
 
 // ─── NAVEGACIÓN ───────────────────────────────────────────
 function initNavegacion() {
@@ -80,6 +81,8 @@ function initZonaHoraria() {
 // ─── INIT GENERAL ─────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
     initState();
+    initTheme();
+    initHamburger();
     initNavegacion();
     initFecha();
     initZonaHoraria();

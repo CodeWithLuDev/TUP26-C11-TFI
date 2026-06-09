@@ -1,5 +1,5 @@
 :root {
-  /* Paleta principal */
+  /* Paleta principal — modo oscuro (pizarrón) */
   --verde-pizarron: #1a2e1a;
   --verde-medio: #223322;
   --verde-claro: #2d4a2d;
@@ -27,6 +27,18 @@
   /* Sombras */
   --sombra-card: 0 4px 20px rgba(0, 0, 0, 0.4);
   --sombra-tiza: 2px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+/* ─── MODO CLARO ───────────────────────────────────────── */
+[data-theme="light"] {
+  --verde-pizarron: #f5f0e8;
+  --verde-medio: #ffffff;
+  --verde-claro: #f0ece0;
+  --tiza-blanca: #2c3e50;
+  --tiza-sucia: #6b7c93;
+  --tiza-opaca: rgba(44, 62, 80, 0.08);
+  --sombra-card: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --sombra-tiza: 1px 1px 0px rgba(0, 0, 0, 0.12);
 }
 
 /* ─── RESET & BASE ───────────────────────────────────────── */
@@ -225,8 +237,95 @@ body {
   }
 }
 
+/* ─── HAMBURGER (mobile) ────────────────────────────────── */
+.navbar__hamburger {
+  display: none;
+  background: none;
+  border: 1px solid var(--tiza-opaca);
+  color: var(--tiza-blanca);
+  font-size: 1.4rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radio);
+  cursor: pointer;
+  line-height: 1;
+  margin-left: auto;
+}
+
+/* ─── COLLAPSE (nav + actions wrapper) ──────────────────── */
+.navbar__collapse {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+/* ─── ACTIONS (theme + zona) ────────────────────────────── */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.navbar__theme {
+  background: none;
+  border: 1px solid var(--tiza-opaca);
+  border-radius: var(--radio);
+  font-size: 1.2rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.navbar__theme:hover {
+  background: var(--tiza-opaca);
+}
+
+/* ─── RESPONSIVE ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    gap: 0;
+    height: auto;
+    padding: 0.5rem 1rem;
+  }
+
+  .navbar__hamburger {
+    display: block;
+  }
+
+  .navbar__collapse {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+    padding: 0.5rem 0 0.3rem;
+  }
+
+  .navbar__collapse.open {
+    display: flex;
+  }
+
+  .navbar__nav {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .nav-btn {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.7rem;
+  }
+
+  .navbar__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════
-   DASHBOARD HEADER
+   DASHBOARD LAYOUT
 ═══════════════════════════════════════════════════════════ */
 .dashboard-header {
   display: flex;
@@ -422,6 +521,68 @@ body {
 
 .tabla-posiciones tr.actualizado td {
   animation: flash-verde 1.2s ease-out forwards;
+}
+
+/* ─── MI EQUIPO (highlight Argentina) ───────────────────── */
+.tabla-posiciones tr.mi-equipo td {
+  background: rgba(201, 168, 76, 0.08);
+  outline: 1px solid rgba(201, 168, 76, 0.3);
+  outline-offset: -1px;
+}
+
+.tabla-posiciones tr.mi-equipo:hover td {
+  background: rgba(201, 168, 76, 0.15);
+}
+
+.mi-equipo-badge {
+  font-size: 0.8rem;
+  margin-left: 0.2rem;
+}
+
+/* ─── PRÓXIMOS PARTIDOS (debajo de la tabla) ────────────── */
+.proximos-partidos {
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.proximos-partidos__titulo {
+  font-family: var(--font-tiza);
+  font-size: 0.8rem;
+  color: var(--oro-claro);
+  margin-bottom: 0.5rem;
+}
+
+.proximo-partido {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: var(--radio);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.proximo-partido--mi-equipo {
+  background: rgba(201, 168, 76, 0.06);
+}
+
+.proximo-partido__equipo {
+  white-space: nowrap;
+}
+
+.proximo-partido__vs {
+  color: var(--tiza-sucia);
+  font-size: 0.65rem;
+  font-style: italic;
+}
+
+.proximo-partido__detalle {
+  margin-left: auto;
+  color: var(--tiza-sucia);
+  font-size: 0.65rem;
+  font-family: var(--font-tiza);
+  white-space: nowrap;
 }
 
 /* ─── FIXTURE TABS ───────────────────────────────────────── */
@@ -662,11 +823,17 @@ body {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1.5rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
   .stats-grid {
     grid-template-columns: 1fr;
   }
@@ -764,6 +931,152 @@ body {
   color: var(--tiza-sucia);
   margin-top: 0.2rem;
 }
+
+/* ─── FAIR PLAY TABLE ───────────────────────────────────── */
+.fp-table {
+  font-size: 0.75rem;
+}
+
+.fp-table__head,
+.fp-table__row {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr 2rem 2rem 2rem;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  align-items: center;
+}
+
+.fp-table__head {
+  font-family: var(--font-tiza);
+  color: var(--tiza-sucia);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.7rem;
+}
+
+.fp-table__row {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.fp-table__row:last-child {
+  border-bottom: none;
+}
+
+.fp-table__pts {
+  font-family: var(--font-titulo);
+  color: var(--oro-claro);
+}
+
+/* ─── BAR CHART (goles por jornada) ─────────────────────── */
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+}
+
+.bar-chart__item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bar-chart__label {
+  font-family: var(--font-tiza);
+  font-size: 0.7rem;
+  color: var(--tiza-sucia);
+  min-width: 5rem;
+}
+
+.bar-chart__track {
+  flex: 1;
+  height: 1.2rem;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-chart__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--oro-panini), var(--oro-claro));
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.bar-chart__valor {
+  font-family: var(--font-titulo);
+  font-size: 0.75rem;
+  color: var(--tiza-blanca);
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+/* ─── TEAM STATS TABLE ──────────────────────────────────── */
+.team-stats-scroll {
+  overflow-x: auto;
+}
+
+.team-stats {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+}
+
+.team-stats th {
+  font-family: var(--font-tiza);
+  color: var(--tiza-sucia);
+  font-weight: normal;
+  padding: 0.35rem 0.4rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+}
+
+.team-stats td {
+  padding: 0.35rem 0.4rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  white-space: nowrap;
+}
+
+.team-stats td:nth-child(2) {
+  text-align: left;
+}
+
+.team-stats tbody tr:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+/* ─── PARTIDO TOP CARD ──────────────────────────────────── */
+.partido-top-card {
+  text-align: center;
+  padding: 0.8rem;
+}
+
+.partido-top-card__marcador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
+.partido-top-card__goles {
+  font-family: var(--font-titulo);
+  font-size: 1.4rem;
+  color: var(--oro-claro);
+}
+
+.partido-top-card__meta {
+  font-size: 0.7rem;
+  color: var(--tiza-sucia);
+  font-family: var(--font-tiza);
+}
+
+/* ─── COLOR HELPERS ─────────────────────────────────────── */
+.text-verde { color: #2ecc71; }
+.text-rojo { color: var(--rojo-claro); }
 
 /* ═══════════════════════════════════════════════════════════
    MODAL
@@ -1026,6 +1339,54 @@ body {
 
 .font-tiza {
   font-family: var(--font-tiza);
+}
+
+/* ─── FILTROS SECUNDARIOS DEL FIXTURE ───────────────────── */
+.fixture-filtros-secundarios {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.fixture-input {
+  flex: 1;
+  min-width: 160px;
+  background: var(--verde-claro);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: var(--radio);
+  color: var(--tiza-blanca);
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.fixture-input:focus {
+  border-color: var(--oro-panini);
+}
+
+.fixture-input::placeholder {
+  color: var(--tiza-sucia);
+  opacity: 0.6;
+}
+
+.fixture-select {
+  background: var(--verde-claro);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: var(--radio);
+  color: var(--tiza-blanca);
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem;
+  outline: none;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.fixture-select:focus {
+  border-color: var(--oro-panini);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1453,4 +1814,61 @@ body {
   font-family: var(--font-tiza);
   color: var(--tiza-sucia);
   font-size: 0.9rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST NOTIFICATIONS
+═══════════════════════════════════════════════════════════ */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radio);
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: toast-in 0.3s ease forwards;
+  white-space: nowrap;
+}
+
+.toast--success {
+  background: #27ae60;
+}
+
+.toast--error {
+  background: #e74c3c;
+}
+
+.toast--info {
+  background: var(--oro-panini);
+  color: var(--verde-pizarron);
+}
+
+.toast--exit {
+  animation: toast-out 0.3s ease forwards;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
+[data-theme="light"] .toast--info {
+  color: #fff;
 }

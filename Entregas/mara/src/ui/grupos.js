@@ -1,4 +1,4 @@
-import { GRUPOS } from "../data/equipos.js";
+import { GRUPOS, getEquipoPorId } from "../data/equipos.js";
 import { getPartidosPorGrupo } from "../data/partidos.js";
 import { getResultados } from "../logic/state.js";
 import { calcularTablaGrupo } from "../logic/posiciones.js";
@@ -6,6 +6,7 @@ import { calcularTablaGrupo } from "../logic/posiciones.js";
 const contenedor = () => document.getElementById("gruposContenido");
 const tabsEl = () => document.getElementById("gruposTabs");
 
+const MI_EQUIPO = "ARG";
 let grupoActivo = "A";
 
 // ─── INIT ─────────────────────────────────────────────────
@@ -70,7 +71,7 @@ export function renderTablaGrupo(grupo) {
       <tbody>
         ${tabla.map((eq, i) => `
           <tr
-            class="${i < 2 ? "clasificado" : i === 2 ? "posible" : ""}"
+            class="${i < 2 ? "clasificado" : i === 2 ? "posible" : ""} ${eq.id === MI_EQUIPO ? "mi-equipo" : ""}"
             data-equipo="${eq.id}"
             id="fila-${eq.id}">
             <td>${i + 1}</td>
@@ -78,6 +79,7 @@ export function renderTablaGrupo(grupo) {
               <div class="equipo-cell">
                 <span class="equipo-bandera">${eq.bandera}</span>
                 <span class="equipo-nombre">${eq.nombre}</span>
+                ${eq.id === MI_EQUIPO ? '<span class="mi-equipo-badge">⭐</span>' : ""}
               </div>
             </td>
             <td>${eq.PJ}</td>
@@ -157,3 +159,4 @@ function _renderForma(equipoId, grupo) {
     return `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${color};color:#111;font-size:0.6rem;font-weight:700;line-height:16px;text-align:center;margin-right:2px;">${r}</span>`;
   }).join("");
 }
+

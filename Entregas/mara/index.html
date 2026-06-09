@@ -30,30 +30,37 @@
       </div>
     </div>
 
-    <nav class="navbar__nav" role="tablist" aria-label="Secciones">
-      <button class="nav-btn active" data-vista="dashboard" role="tab" aria-selected="true" aria-current="page">
-        <span class="nav-btn__icon">🏠</span>
-        <span class="nav-btn__label">Tablero</span>
-      </button>
-      <button class="nav-btn" data-vista="bracket" role="tab" aria-selected="false" aria-current="false">
-        <span class="nav-btn__icon">🏆</span>
-        <span class="nav-btn__label">Bracket</span>
-      </button>
-      <button class="nav-btn" data-vista="estadisticas" role="tab" aria-selected="false" aria-current="false">
-        <span class="nav-btn__icon">📊</span>
-        <span class="nav-btn__label">Estadísticas</span>
-      </button>
-    </nav>
+    <button class="navbar__hamburger" id="navHamburger" aria-label="Menú">☰</button>
 
-    <div class="navbar__zona">
-      <label class="zona-label">🕐 Zona horaria</label>
-      <select class="zona-select" id="zonaSelect">
-        <option value="-3">Argentina (GMT-3)</option>
-        <option value="-6">México (GMT-6)</option>
-        <option value="-5">USA Este (GMT-5)</option>
-        <option value="-7">USA Pacífico (GMT-7)</option>
-        <option value="1">España (GMT+1)</option>
-      </select>
+    <div class="navbar__collapse" id="navbarCollapse">
+      <nav class="navbar__nav" role="tablist" aria-label="Secciones">
+        <button class="nav-btn active" data-vista="dashboard" role="tab" aria-selected="true" aria-current="page">
+          <span class="nav-btn__icon">🏠</span>
+          <span class="nav-btn__label">Tablero</span>
+        </button>
+        <button class="nav-btn" data-vista="bracket" role="tab" aria-selected="false" aria-current="false">
+          <span class="nav-btn__icon">🏆</span>
+          <span class="nav-btn__label">Bracket</span>
+        </button>
+        <button class="nav-btn" data-vista="estadisticas" role="tab" aria-selected="false" aria-current="false">
+          <span class="nav-btn__icon">📊</span>
+          <span class="nav-btn__label">Estadísticas</span>
+        </button>
+      </nav>
+
+      <div class="navbar__actions">
+        <button class="navbar__theme" id="themeToggle" aria-label="Cambiar tema">🌙</button>
+        <div class="navbar__zona">
+          <label class="zona-label">🕐</label>
+          <select class="zona-select" id="zonaSelect">
+            <option value="-3">ARG (GMT-3)</option>
+            <option value="-6">MEX (GMT-6)</option>
+            <option value="-5">USE (GMT-5)</option>
+            <option value="-7">USP (GMT-7)</option>
+            <option value="1">ESP (GMT+1)</option>
+          </select>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -169,10 +176,34 @@
           <li class="stats-lista__vacio">Sin asistencias registradas</li>
         </ol>
       </div>
+      <div class="stats-card">
+        <h3 class="stats-card__titulo">🟨 Fair Play</h3>
+        <div id="statsFairPlay">
+          <div class="placeholder-tiza"><p>Sin tarjetas registradas</p></div>
+        </div>
+      </div>
       <div class="stats-card stats-card--wide">
         <h3 class="stats-card__titulo">📈 Resumen del Torneo</h3>
         <div class="stats-resumen" id="statsResumen">
           <!-- Generado por JS -->
+        </div>
+      </div>
+      <div class="stats-card stats-card--wide">
+        <h3 class="stats-card__titulo">📊 Goles por Jornada</h3>
+        <div id="statsGolesJornada">
+          <div class="placeholder-tiza"><p>Sin partidos jugados</p></div>
+        </div>
+      </div>
+      <div class="stats-card stats-card--wide">
+        <h3 class="stats-card__titulo">📋 Estadísticas por Equipo</h3>
+        <div id="statsEquipos">
+          <div class="placeholder-tiza"><p>Sin partidos jugados</p></div>
+        </div>
+      </div>
+      <div class="stats-card stats-card--wide">
+        <h3 class="stats-card__titulo">🔥 Partido con Más Goles</h3>
+        <div id="statsPartidoTop">
+          <div class="placeholder-tiza"><p>Sin partidos jugados</p></div>
         </div>
       </div>
     </div>
@@ -197,6 +228,9 @@
        EFECTO CELEBRACIÓN (papelitos)
   ══════════════════════════════════════════════════ -->
   <div class="celebracion" id="celebracion" aria-hidden="true"></div>
+
+  <!-- Toast notifications -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
   <!-- Scripts — orden importa: datos → lógica → UI → main -->
   <script type="module" src="src/main.js"></script>

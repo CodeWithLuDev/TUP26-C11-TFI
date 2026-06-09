@@ -2,9 +2,10 @@ const KEYS = {
   RESULTADOS: "cp26_resultados",
   GOLES: "cp26_goles",
   ZONA_HORARIA: "cp26_zona",
+  TARJETAS: "cp26_tarjetas",
 };
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 const VERSION_KEY = "cp26_schema_version";
 
 function _migrarSiHaceFalta() {
@@ -64,6 +65,23 @@ export function borrarGolesDePartido(partidoId) {
   localStorage.setItem(KEYS.GOLES, JSON.stringify(goles));
 }
 
+// ─── TARJETAS ─────────────────────────────────────────────
+export function getTarjetas() {
+  const raw = localStorage.getItem(KEYS.TARJETAS);
+  return raw ? _safeParse(raw, []) : [];
+}
+
+export function guardarTarjeta(partidoId, equipoId, jugador, tipo) {
+  const tarjetas = getTarjetas();
+  tarjetas.push({ partidoId, equipoId, jugador, tipo, ts: Date.now() });
+  localStorage.setItem(KEYS.TARJETAS, JSON.stringify(tarjetas));
+}
+
+export function borrarTarjetasDePartido(partidoId) {
+  const tarjetas = getTarjetas().filter(t => t.partidoId !== partidoId);
+  localStorage.setItem(KEYS.TARJETAS, JSON.stringify(tarjetas));
+}
+
 // ─── ZONA HORARIA ─────────────────────────────────────────
 export function getZonaHoraria() {
   return parseInt(localStorage.getItem(KEYS.ZONA_HORARIA) ?? "-3", 10);
@@ -80,5 +98,6 @@ export function initState() {
 
 // ─── RESET TOTAL (útil para testing) ─────────────────────
 export function resetearTodo() {
-  [...Object.values(KEYS), VERSION_KEY].forEach(k => localStorage.removeItem(k));
+  Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+  localStorage.removeItem(VERSION_KEY);
 }

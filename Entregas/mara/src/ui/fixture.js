@@ -7,6 +7,12 @@ import { abrirModalResultado } from "./modal.js";
 const contenedor = () => document.getElementById("fixtureContenido");
 
 let filtroActivo = "hoy";
+let _filtroBusqueda = "";
+let _filtroSede = "";
+
+function _getSedes() {
+  return [...new Set(PARTIDOS.map(p => p.sede.split(",")[0].trim()))].sort();
+}
 
 // ─── INIT ─────────────────────────────────────────────────
 export function initFixture() {
@@ -32,12 +38,14 @@ export function renderFixture(filtro = filtroActivo) {
   const el = contenedor();
   if (!el) return;
 
+  _filtroBusqueda = "";
+  _filtroSede = "";
+
   let partidos = [];
 
   if (filtro === "hoy") {
     partidos = getPartidosHoy();
     if (partidos.length === 0) {
-      // Si hoy no hay partidos mostrar los próximos
       const hoy = new Date().toISOString().split("T")[0];
       partidos = PARTIDOS.filter(p => p.fecha >= hoy).slice(0, 8);
     }
@@ -47,23 +55,64 @@ export function renderFixture(filtro = filtroActivo) {
     partidos = _getPartidosPorGrupoAgrupados();
   }
 
-  if (filtro === "fecha") {
-    el.innerHTML = _renderAgrupado(partidos, "fecha");
-    return;
-  }
-  if (filtro === "grupo") {
-    el.innerHTML = _renderAgrupado(partidos, "grupo");
-    return;
-  }
+  el.innerHTML = `
+    <div class="fixture-filtros-secundarios">
+      <input type="text" id="fixtureBuscar" class="fixture-input" placeholder="🔍 Buscar equipo..." />
+      <select id="fixtureSede" class="fixture-select">
+        <option value="">📍 Todas las sedes</option>
+        ${_getSedes().map(s => `<option value="${s}">${s}</option>`).join("")}
+      </select>
+    </div>
+    <div id="fixtureLista">
+      ${_renderLista(partidos, filtro)}
+    </div>
+  `;
 
-  // Vista "hoy" o por defecto
-  if (partidos.length === 0) {
-    el.innerHTML = `<div class="placeholder-tiza"><p>No hay partidos programados para hoy</p></div>`;
-    return;
-  }
+  _bindFiltrosSecundarios();
+}
 
-  el.innerHTML = partidos.map(p => _renderPartidoCard(p)).join("");
+function _renderLista(partidos, filtro) {
+  if (filtro === "fecha") return _renderAgrupado(partidos, "fecha");
+  if (filtro === "grupo") return _renderAgrupado(partidos, "grupo");
+
+  if (!partidos.length) {
+    return `<div class="placeholder-tiza"><p>No hay partidos programados para hoy</p></div>`;
+  }
+  return partidos.map(p => _renderPartidoCard(p)).join("");
+}
+
+function _bindFiltrosSecundarios() {
+  document.getElementById("fixtureBuscar")?.addEventListener("input", e => {
+    _filtroBusqueda = e.target.value;
+    _filtrarPartidos();
+  });
+  document.getElementById("fixtureSede")?.addEventListener("change", e => {
+    _filtroSede = e.target.value;
+    _filtrarPartidos();
+  });
   attachFixtureListeners();
+}
+
+function _filtrarPartidos() {
+  const q = _filtroBusqueda.toLowerCase().trim();
+  const sede = _filtroSede;
+  document.querySelectorAll("#fixtureLista .partido-card").forEach(card => {
+    const texto = card.dataset.busqueda || "";
+    const cardSede = card.dataset.sede || "";
+    const matchTexto = !q || texto.includes(q);
+    const matchSede = !sede || cardSede === sede;
+    card.style.display = matchTexto && matchSede ? "" : "none";
+  });
+  // Ocultar headers de grupo que quedan vacíos
+  document.querySelectorAll("#fixtureLista .fixture-grupo-header").forEach(h => {
+    let next = h.nextElementSibling;
+    let visible = false;
+    while (next && !next.classList.contains("fixture-grupo-header")) {
+      if (next.style.display !== "none") { visible = true; break; }
+      next = next.nextElementSibling;
+    }
+    h.style.display = visible ? "" : "none";
+  });
 }
 
 // ─── RENDER AGRUPADO (por fecha o por grupo) ──────────────
@@ -79,6 +128,17 @@ function _renderAgrupado(grupos, tipo) {
 }
 
 // ─── CARD DE PARTIDO ──────────────────────────────────────
+function _esAhora(p, hora) {
+  const hoy = new Date().toISOString().split("T")[0];
+  if (p.fecha !== hoy) return false;
+  const ahora = new Date();
+  const [hh, mm] = hora.split(":").map(Number);
+  const minutosPartido = hh * 60 + mm;
+  const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
+  const diff = minutosPartido - minutosAhora;
+  return diff <= 0 && diff > -105; // empezó hace menos de 105 min
+}
+
 function _renderPartidoCard(p) {
   const eqL = getEquipoPorId(p.local);
   const eqV = getEquipoPorId(p.visitante);
@@ -86,13 +146,16 @@ function _renderPartidoCard(p) {
   const hora = _ajustarHora(p.hora, p.fecha);
 
   const claseCard = res?.jugado ? "jugado" : "";
+  const enVivo = !res?.jugado && _esAhora(p, hora);
 
   const resultado = res?.jugado
     ? `<span class="partido-resultado">${res.local} — ${res.visitante}</span>`
-    : `<span class="partido-vs">${hora}</span>`;
+    : `<span class="partido-vs">${enVivo ? "🔴 EN VIVO" : hora}</span>`;
+
+  const busqueda = [eqL?.nombre, eqV?.nombre, p.local, p.visitante, p.grupo].filter(Boolean).join(" ").toLowerCase();
 
   return `
-    <div class="partido-card ${claseCard}" data-partido="${p.id}">
+    <div class="partido-card ${claseCard} ${enVivo ? "en-curso" : ""}" data-partido="${p.id}" data-busqueda="${busqueda}" data-sede="${p.sede.split(",")[0].trim()}">
       <div class="partido-info">
         <div class="partido-equipo">
           <span>${eqL?.bandera ?? "🏳️"}</span>
@@ -107,7 +170,7 @@ function _renderPartidoCard(p) {
       <div class="partido-meta">
         <span class="partido-meta__grupo">GRP ${p.grupo}</span>
         <span>${p.sede.split(",")[0]}</span>
-        <span>${_formatFecha(p.fecha)}</span>
+        <span>${_formatFecha(p.fecha)} ${enVivo ? "· 🔴" : ""}</span>
       </div>
       ${!res?.jugado ? `
         <button class="btn-cargar" data-partido="${p.id}">
