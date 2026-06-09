@@ -115,14 +115,6 @@ export function getPartidosPorGrupo(grupo) {
   return PARTIDOS.filter(p => p.grupo === grupo);
 }
 
-export function getPartidosPorJornada(jornada) {
-  return PARTIDOS.filter(p => p.jornada === jornada);
-}
-
-export function getPartidosPorFecha(fecha) {
-  return PARTIDOS.filter(p => p.fecha === fecha);
-}
-
 export function getPartidoPorId(id) {
   return PARTIDOS.find(p => p.id === id);
 }

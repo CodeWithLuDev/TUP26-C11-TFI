@@ -35,8 +35,6 @@ function _guardarBracket() {
 }
 
 // ─── RENDER PRINCIPAL ─────────────────────────────────────
-export function renderBracket() { _renderBracket(); }
-
 function _renderBracket() {
   const contenedor = document.getElementById("bracketContenido");
   if (!contenedor) return;
@@ -371,10 +369,4 @@ function _tieneDatosReales() {
     if (ronda.some(p => p.ganador)) return true;
   }
   return false;
-}
-
-export function resetBracketCompleto() {
-  localStorage.removeItem(LS_KEY);
-  _bracket = construirBracket(null);
-  _renderBracket();
 }

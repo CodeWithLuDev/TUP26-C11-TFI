@@ -29,21 +29,3 @@ export const JUGADORES = {
 export function getPlantelPorEquipo(equipoId) {
   return JUGADORES[equipoId] || [];
 }
-
-export function getJugadoresPartido(localId, visitanteId) {
-  return {
-    local: getPlantelPorEquipo(localId),
-    visitante: getPlantelPorEquipo(visitanteId),
-  };
-}
-
-export function buscarJugador(nombre) {
-  const resultados = [];
-  for (const [equipoId, plantel] of Object.entries(JUGADORES)) {
-    const encontrado = plantel.find(j =>
-      j.nombre.toLowerCase().includes(nombre.toLowerCase())
-    );
-    if (encontrado) resultados.push({ ...encontrado, equipoId });
-  }
-  return resultados;
-}

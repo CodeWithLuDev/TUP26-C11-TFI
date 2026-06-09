@@ -127,8 +127,3 @@ function _bindEventos() {
       _renderPlantilla();
     });
 }
-
-export function resetAlbum() {
-  try { localStorage.removeItem(LS_KEY); } catch {}
-  initAlbum();
-}

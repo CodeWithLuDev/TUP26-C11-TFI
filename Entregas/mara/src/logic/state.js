@@ -95,9 +95,3 @@ export function guardarZonaHoraria(offset) {
 export function initState() {
   _migrarSiHaceFalta();
 }
-
-// ─── RESET TOTAL (útil para testing) ─────────────────────
-export function resetearTodo() {
-  Object.values(KEYS).forEach(k => localStorage.removeItem(k));
-  localStorage.removeItem(VERSION_KEY);
-}

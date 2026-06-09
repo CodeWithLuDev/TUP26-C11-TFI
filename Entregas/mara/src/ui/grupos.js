@@ -1,4 +1,4 @@
-import { GRUPOS, getEquipoPorId } from "../data/equipos.js";
+import { GRUPOS } from "../data/equipos.js";
 import { getPartidosPorGrupo } from "../data/partidos.js";
 import { getResultados } from "../logic/state.js";
 import { calcularTablaGrupo } from "../logic/posiciones.js";
