@@ -38,6 +38,10 @@
           <span class="nav-btn__icon">🏠</span>
           <span class="nav-btn__label">Tablero</span>
         </button>
+        <button class="nav-btn" data-vista="grupos" role="tab" aria-selected="false" aria-current="false">
+          <span class="nav-btn__icon">📋</span>
+          <span class="nav-btn__label">Grupos</span>
+        </button>
         <button class="nav-btn" data-vista="bracket" role="tab" aria-selected="false" aria-current="false">
           <span class="nav-btn__icon">🏆</span>
           <span class="nav-btn__label">Bracket</span>
@@ -78,26 +82,10 @@
       <div class="dashboard-header__fecha" id="fechaHoy"></div>
     </section>
 
-    <!-- Layout principal: Grupos + Fixture -->
+    <!-- Layout principal: Fixture (ancho completo) -->
     <div class="dashboard-grid">
 
-      <!-- Panel izquierdo: Grupos -->
-      <section class="panel panel--grupos">
-        <div class="panel__header">
-          <h2 class="panel__titulo">⚽ Fase de Grupos</h2>
-          <div class="grupos-tabs" id="gruposTabs">
-            <!-- Tabs A-L generadas por JS -->
-          </div>
-        </div>
-        <div class="panel__body" id="gruposContenido">
-          <!-- Tabla de posiciones generada por JS -->
-          <div class="placeholder-tiza">
-            <p>Cargando grupos...</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Panel derecho: Fixture -->
+      <!-- Fixture -->
       <section class="panel panel--fixture">
         <div class="panel__header">
           <h2 class="panel__titulo">📋 Fixture</h2>
@@ -124,18 +112,23 @@
           <span class="album-badge">PANINI</span>
           JUGADORES
         </h2>
-        <div class="album-filtro">
-          <label class="album-filtro__label">Ver plantel de:</label>
-          <div class="album-escudos" id="albumEscudos">
-            <!-- Escudos generados por JS -->
-          </div>
-        </div>
       </div>
       <div class="album-figuritas" id="albumFiguritas">
         <!-- Figuritas generadas por JS -->
       </div>
     </section>
 
+  </main>
+
+  <!-- ══════════════════════════════════════════════════
+       VISTA: GRUPOS
+  ══════════════════════════════════════════════════ -->
+  <main id="vista-grupos" class="vista">
+    <section class="grupos-header">
+      <h1 class="grupos-header__titulo">📋 FASE DE GRUPOS</h1>
+      <p class="grupos-header__sub">Mundial 2026 — Posiciones actualizadas</p>
+    </section>
+    <div class="grupos-grid" id="gruposGrid"></div>
   </main>
 
   <!-- ══════════════════════════════════════════════════

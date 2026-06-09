@@ -1,5 +1,5 @@
 import { initState } from "./logic/state.js";
-import { initGrupos } from "./ui/grupos.js";
+import { renderGruposCompletos } from "./ui/grupos.js";
 import { initFixture } from "./ui/fixture.js";
 import { initModal } from "./ui/modal.js";
 import { renderEstadisticas } from "./ui/estadisticas.js";
@@ -23,6 +23,7 @@ function initNavegacion() {
         vistas.forEach(v => v.classList.remove("active"));
         document.getElementById(`vista-${target}`)?.classList.add("active");
 
+        if (target === "grupos") renderGruposCompletos();
         if (target === "estadisticas") renderEstadisticas();
 
         if (window.location.hash !== `#${target}`) {
@@ -87,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initFecha();
     initZonaHoraria();
     initModal();
-    initGrupos();
     initFixture();
     initBracket();
     initAlbum();
