@@ -40,6 +40,7 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 19px;
 }
 
 body {
@@ -640,169 +641,9 @@ body {
   box-shadow: 0 0 8px rgba(232, 201, 106, 0.4);
 }
 
-/* Grid de figuritas secuencial */
+/* Contenedor del contenido dinámico */
 .album-figuritas {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 1.2rem;
   min-height: 200px;
-}
-
-.figurita-wrapper {
-  display: flex;
-  animation: figurita-in 0.35s cubic-bezier(0.25, 1, 0.5, 1) both;
-}
-
-/* Estructura Física del Cromo */
-.figurita {
-  width: 100%;
-  background: linear-gradient(145deg, #fdfaf0, #eaddbd);
-  border-radius: 6px;
-  padding: 0.6rem;
-  text-align: center;
-  box-shadow: 3px 4px 10px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(201, 168, 76, 0.25);
-  transition: transform 0.25s ease, box-shadow 0.25s;
-  position: relative;
-  overflow: hidden;
-}
-
-.figurita--conseguida:hover {
-  transform: translateY(-5px) rotate(1deg);
-  box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.6), inset 0 0 0 2px var(--oro-panini);
-}
-
-/* Estado Bloqueado / Casillero vacío en la Pizarra */
-.figurita--bloqueada {
-  background: #1e2b1e !important;
-  border: 2px dashed rgba(232, 234, 208, 0.2) !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-
-.figurita--bloqueada .figurita__front {
-  opacity: 0.25;
-  filter: grayscale(100%);
-}
-
-/* Espacio Circular de la Imagen */
-.figurita__foto {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: #111;
-  margin: 0.5rem auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--oro-panini);
-  overflow: hidden;
-  position: relative;
-}
-
-/* NUEVO: Imagen real traída desde internet */
-.figurita__img-real {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Evita que la foto del jugador se deforme */
-  display: block;
-}
-
-.figurita__incognito {
-  font-size: 1.8rem;
-  color: var(--tiza-sucia);
-}
-
-/* Textos internos */
-.figurita__front {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.figurita__header {
-  width: 100%;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
-  margin-bottom: 0.3rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.figurita__numero {
-  font-family: var(--font-titulo);
-  font-size: 0.8rem;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-.figurita__pos-badge {
-  font-size: 0.55rem;
-  font-weight: 700;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  padding: 0.05rem 0.25rem;
-  border-radius: 2px;
-}
-
-.figurita__info {
-  margin-top: 0.2rem;
-  flex-grow: 1;
-}
-
-.figurita__nombre {
-  font-family: var(--font-titulo);
-  font-size: 0.85rem;
-  color: var(--verde-pizarron);
-  letter-spacing: 0.3px;
-  line-height: 1.1;
-}
-
-.figurita__club {
-  font-size: 0.6rem;
-  color: #555;
-  font-style: italic;
-  margin-top: 0.1rem;
-}
-
-.figurita__equipo-badge {
-  font-size: 0.65rem;
-  color: #444;
-  font-weight: 600;
-  margin-top: 0.4rem;
-  border-top: 1px dashed rgba(0, 0, 0, 0.12);
-  padding-top: 0.2rem;
-}
-
-/* Brillo metálico reactivo */
-.figurita__brillo {
-  position: absolute;
-  top: 0;
-  left: -150%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-  transform: skewX(-20deg);
-  pointer-events: none;
-}
-
-.figurita--conSample:hover .figurita__brillo,
-.figurita--conseguida:hover .figurita__brillo {
-  left: 150%;
-  transition: left 0.6s ease-in-out;
-}
-
-@keyframes figurita-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.95);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1188,230 +1029,142 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   ÁLBUM PANINI — Estilo figurita oficial
+   ÁLBUM PANINI — Layout equipo + plantilla
 ═══════════════════════════════════════════════════════════ */
 
-.album-desplegable-equipos {
-  background: var(--verde-claro);
-  border: 1px solid var(--oro-panini);
-  color: var(--tiza-blanca);
-  font-family: var(--font-cuerpo);
-  font-size: 0.85rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: var(--radio);
-  cursor: pointer;
-  outline: none;
-  min-width: 200px;
-}
-
 .album-figuritas {
+  min-height: 200px;
+}
+
+.album-plantilla {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 1.2rem;
-  padding: 0.5rem 0;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  align-items: center;
 }
 
-/* ─── WRAPPER con animación ─── */
-.fig-wrapper {
-  animation: figurita-in 0.35s ease both;
+@media (max-width: 768px) {
+  .album-plantilla {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* ─── CARD principal ─── */
-.fig-card {
-  position: relative;
-  background: linear-gradient(170deg, #f7f2e2 0%, #ede5c8 50%, #e0d5b0 100%);
-  border-radius: 10px;
+/* ─── COLUMNA IZQUIERDA: FOTO DEL EQUIPO ─── */
+.album-plantilla__foto {
+  border-radius: var(--radio-card);
   overflow: hidden;
-  box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.45),
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    inset 0 0 0 1.5px rgba(201, 168, 76, 0.6);
-  aspect-ratio: 5 / 7;
-  display: flex;
-  flex-direction: column;
-  cursor: default;
-  transition: transform 0.25s cubic-bezier(.34, 1.56, .64, 1), box-shadow 0.25s ease;
-  /* Borde blanco exterior estilo Panini */
-  outline: 2px solid rgba(255, 255, 255, 0.7);
-  outline-offset: -3px;
-}
-
-.fig-card:hover {
-  transform: translateY(-8px) rotate(2deg) scale(1.04);
-  box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.55),
-    0 4px 8px rgba(0, 0, 0, 0.3),
-    inset 0 0 0 2px var(--oro-panini);
-}
-
-/* ─── NÚMERO DORSAL ─── */
-.fig-num {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  z-index: 3;
-  font-family: var(--font-titulo);
-  font-size: 0.9rem;
-  color: #fff;
-  background: #333;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  background: var(--verde-claro);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  aspect-ratio: 4 / 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-  line-height: 1;
 }
 
-/* ─── ZONA FOTO ─── */
-.fig-foto-zona {
-  position: relative;
-  flex: 1;
-  overflow: hidden;
-  min-height: 0;
-}
-
-.fig-img {
+.album-equipo-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top center;
   display: block;
-  transition: transform 0.3s ease;
 }
 
-.fig-card:hover .fig-img {
-  transform: scale(1.06);
-}
-
-/* Iniciales fallback */
-.fig-iniciales {
-  width: 100%;
-  height: 100%;
+.album-equipo-placeholder {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.album-equipo-placeholder__bandera {
+  font-size: 5rem;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.album-equipo-placeholder__nombre {
   font-family: var(--font-titulo);
-  font-size: 2.2rem;
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+  font-size: 1.6rem;
+  color: var(--tiza-sucia);
   letter-spacing: 3px;
 }
 
-/* Degradado inferior sobre la foto */
-.fig-foto-fade {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 45%;
-  background: linear-gradient(to top, var(--col, #000) 0%, transparent 100%);
+/* ─── COLUMNA DERECHA: LISTA DE JUGADORES ─── */
+.album-plantilla__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.album-buscar {
+  background: var(--verde-claro);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: var(--radio);
+  color: var(--tiza-blanca);
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  padding: 0.5rem 0.8rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.album-buscar:focus {
+  border-color: var(--oro-panini);
+}
+
+.album-buscar::placeholder {
+  color: var(--tiza-sucia);
   opacity: 0.6;
 }
 
-/* ─── BADGE POSICIÓN ─── */
-.fig-pos-badge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  z-index: 3;
+.album-bloque__titulo {
   font-family: var(--font-titulo);
-  font-size: 0.55rem;
-  letter-spacing: 1px;
-  color: #fff;
-  padding: 0.15rem 0.35rem;
-  border-radius: 3px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  font-size: 1rem;
+  color: var(--oro-claro);
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.2);
 }
 
-/* ─── DATOS JUGADOR ─── */
-.fig-data {
-  padding: 0.35rem 0.5rem 0.1rem;
-  background: rgba(255, 255, 255, 0.55);
-  text-align: center;
-  flex-shrink: 0;
+.album-bloque__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem 1rem;
 }
 
-.fig-nombre-small {
-  font-family: var(--font-cuerpo);
-  font-size: 0.5rem;
-  color: #555;
-  text-transform: capitalize;
-  line-height: 1.2;
-  letter-spacing: 0.3px;
+@media (max-width: 480px) {
+  .album-bloque__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.fig-apellido {
-  font-family: var(--font-titulo);
-  font-size: 0.72rem;
-  color: #111;
-  letter-spacing: 1px;
-  line-height: 1.1;
-  margin-top: 0.05rem;
-}
-
-.fig-club-line {
-  font-size: 0.47rem;
-  color: #777;
-  font-style: italic;
-  margin-top: 0.1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* ─── PIE ─── */
-.fig-footer {
+.album-jugador {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.2rem 0.5rem;
-  background: linear-gradient(90deg, #1a2e1a, #2d4a2d);
-  flex-shrink: 0;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.fig-flag {
-  font-size: 0.9rem;
-}
-
-.fig-codigo {
+.album-jugador__dorsal {
   font-family: var(--font-titulo);
-  font-size: 0.6rem;
-  letter-spacing: 2px;
-  color: var(--oro-claro);
+  font-size: 0.8rem;
+  color: var(--oro-panini);
+  min-width: 22px;
+  text-align: center;
 }
 
-.fig-logo-panini {
-  font-family: var(--font-titulo);
-  font-size: 0.55rem;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-/* ─── EFECTO HOLOGRÁFICO ─── */
-.fig-holo {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(125deg,
-      transparent 20%,
-      rgba(255, 255, 255, 0.12) 40%,
-      rgba(255, 215, 0, 0.08) 50%,
-      rgba(255, 255, 255, 0.12) 60%,
-      transparent 80%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  border-radius: 10px;
-}
-
-.fig-card:hover .fig-holo {
-  opacity: 1;
+.album-jugador__nombre {
+  color: var(--tiza-blanca);
+  font-weight: 400;
 }
 
 /* ─── EMPTY STATE ─── */
 .album-empty {
-  grid-column: 1/-1;
   text-align: center;
   padding: 3rem;
   color: var(--tiza-sucia);

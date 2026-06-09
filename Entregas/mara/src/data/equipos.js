@@ -77,7 +77,8 @@ export function getEquiposPorGrupo(grupo) {
 }
 
 export function getEquipoPorId(id) {
-  return EQUIPOS.find(e => e.id === id);
+  const eq = EQUIPOS.find(e => e.id === id);
+  return eq ? { ...eq, fotoEquipo: eq.fotoEquipo ?? "" } : eq;
 }
 
 export const GRUPOS = [...new Set(EQUIPOS.map(e => e.grupo))].sort();

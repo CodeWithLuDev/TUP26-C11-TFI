@@ -3,6 +3,7 @@ import {
   resetearPartido, isFaseGruposCompleta,
   serializarBracket, deserializarBracket,
 } from "../logic/playoffs.js";
+import { lanzarCelebracion } from "./celebracion.js";
 
 const LS_KEY = "copa_potrero_bracket_v1";
 let _bracket = null;
@@ -41,7 +42,7 @@ function _renderBracket() {
   if (!contenedor) return;
 
   const completa = isFaseGruposCompleta();
-  const tieneData = _tieneDatosReales();
+  const tieneData = _tieneDatosReales() || localStorage.getItem(LS_KEY);
 
   if (!completa && !tieneData) {
     contenedor.className = "";
@@ -346,7 +347,7 @@ function _confirmar(overlay) {
   _cerrarModal(overlay);
   _renderBracket();
 
-  if (_bracket.campeon) _celebrar();
+  if (_bracket.campeon) lanzarCelebracion();
 }
 
 function _cerrarModal(overlay) {
@@ -370,19 +371,6 @@ function _tieneDatosReales() {
     if (ronda.some(p => p.ganador)) return true;
   }
   return false;
-}
-
-function _celebrar() {
-  const cel = document.getElementById("celebracion");
-  if (!cel) return;
-  const colores = ["#c9a84c", "#e8c96a", "#fff", "#74b9ff", "#2ecc71"];
-  for (let i = 0; i < 100; i++) {
-    const p = document.createElement("div");
-    p.className = "papel";
-    p.style.cssText = `left:${Math.random() * 100}%;background:${colores[i % colores.length]};--dur:${1.5 + Math.random() * 2}s;--drift:${(Math.random() - .5) * 200}px;animation-delay:${Math.random() * .8}s`;
-    cel.appendChild(p);
-  }
-  setTimeout(() => { cel.innerHTML = ""; }, 4500);
 }
 
 export function resetBracketCompleto() {

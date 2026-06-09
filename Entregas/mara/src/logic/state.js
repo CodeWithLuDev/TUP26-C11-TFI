@@ -4,12 +4,25 @@ const KEYS = {
   ZONA_HORARIA: "cp26_zona",
 };
 
+const SCHEMA_VERSION = 1;
+const VERSION_KEY = "cp26_schema_version";
+
+function _migrarSiHaceFalta() {
+  const version = parseInt(localStorage.getItem(VERSION_KEY) ?? "0", 10);
+  if (version >= SCHEMA_VERSION) return;
+  localStorage.setItem(VERSION_KEY, String(SCHEMA_VERSION));
+}
+
+function _safeParse(raw, fallback) {
+  try { return JSON.parse(raw); } catch { return fallback; }
+}
+
 // ─── RESULTADOS ───────────────────────────────────────────
 // Estructura: { [partidoId]: { local: N, visitante: N, jugado: bool } }
 
 export function getResultados() {
   const raw = localStorage.getItem(KEYS.RESULTADOS);
-  return raw ? JSON.parse(raw) : {};
+  return raw ? _safeParse(raw, {}) : {};
 }
 
 export function guardarResultado(partidoId, golesLocal, golesVisitante) {
@@ -37,7 +50,7 @@ export function getResultadoPartido(partidoId) {
 
 export function getGoles() {
   const raw = localStorage.getItem(KEYS.GOLES);
-  return raw ? JSON.parse(raw) : [];
+  return raw ? _safeParse(raw, []) : [];
 }
 
 export function guardarGol(partidoId, equipoId, jugador, tipo = "gol") {
@@ -60,7 +73,12 @@ export function guardarZonaHoraria(offset) {
   localStorage.setItem(KEYS.ZONA_HORARIA, String(offset));
 }
 
+// ─── INIT (llamar al arranque) ────────────────────────────
+export function initState() {
+  _migrarSiHaceFalta();
+}
+
 // ─── RESET TOTAL (útil para testing) ─────────────────────
 export function resetearTodo() {
-  Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+  [...Object.values(KEYS), VERSION_KEY].forEach(k => localStorage.removeItem(k));
 }

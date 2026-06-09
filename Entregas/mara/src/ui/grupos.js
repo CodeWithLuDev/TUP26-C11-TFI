@@ -1,4 +1,6 @@
 import { GRUPOS } from "../data/equipos.js";
+import { getPartidosPorGrupo } from "../data/partidos.js";
+import { getResultados } from "../logic/state.js";
 import { calcularTablaGrupo } from "../logic/posiciones.js";
 
 const contenedor = () => document.getElementById("gruposContenido");
@@ -62,6 +64,7 @@ export function renderTablaGrupo(grupo) {
           <th title="Goles en Contra">GC</th>
           <th title="Diferencia de Goles">DG</th>
           <th title="Puntos">PTS</th>
+          <th title="Últimos resultados">F</th>
         </tr>
       </thead>
       <tbody>
@@ -87,6 +90,7 @@ export function renderTablaGrupo(grupo) {
               ${eq.DG > 0 ? "+" : ""}${eq.DG}
             </td>
             <td><strong>${eq.PTS}</strong></td>
+            <td>${_renderForma(eq.id, grupo)}</td>
           </tr>
         `).join("")}
       </tbody>
@@ -121,4 +125,35 @@ export function actualizarTablaGrupo(grupo) {
       }
     });
   }
+}
+
+// ─── FORM GUIDE ────────────────────────────────────────────
+function _getForma(equipoId, grupo) {
+  const partidos = getPartidosPorGrupo(grupo);
+  const resultados = getResultados();
+
+  return partidos
+    .filter(p => (p.local === equipoId || p.visitante === equipoId) && resultados[p.id]?.jugado)
+    .sort((a, b) => a.jornada - b.jornada)
+    .map(p => {
+      const r = resultados[p.id];
+      if (p.local === equipoId) {
+        if (r.local > r.visitante) return "W";
+        if (r.local < r.visitante) return "L";
+        return "D";
+      }
+      if (r.visitante > r.local) return "W";
+      if (r.visitante < r.local) return "L";
+      return "D";
+    });
+}
+
+function _renderForma(equipoId, grupo) {
+  const forma = _getForma(equipoId, grupo);
+  if (!forma.length) return `<span style="color:var(--tiza-sucia);font-size:0.65rem;">—</span>`;
+
+  return forma.map(r => {
+    const color = r === "W" ? "#2ecc71" : r === "D" ? "#f1c40f" : "#e74c3c";
+    return `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${color};color:#111;font-size:0.6rem;font-weight:700;line-height:16px;text-align:center;margin-right:2px;">${r}</span>`;
+  }).join("");
 }

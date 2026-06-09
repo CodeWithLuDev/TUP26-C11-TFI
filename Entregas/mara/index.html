@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Copa Potrero '26 ⚽</title>
+  <title>Mundialito ⚽</title>
 
   <!-- Google Fonts: Bebas Neue (títulos) + Oswald (tablas) + Caveat (anotaciones) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,21 +25,21 @@
     <div class="navbar__brand">
       <span class="navbar__escudo">⚽</span>
       <div class="navbar__titulo">
-        <span class="navbar__copa">COPA</span>
-        <span class="navbar__potrero">POTRERO '26</span>
+        <span class="navbar__copa">GLORIA</span>
+        <span class="navbar__potrero">ENTERNA</span>
       </div>
     </div>
 
-    <nav class="navbar__nav">
-      <button class="nav-btn active" data-vista="dashboard">
+    <nav class="navbar__nav" role="tablist" aria-label="Secciones">
+      <button class="nav-btn active" data-vista="dashboard" role="tab" aria-selected="true" aria-current="page">
         <span class="nav-btn__icon">🏠</span>
         <span class="nav-btn__label">Tablero</span>
       </button>
-      <button class="nav-btn" data-vista="bracket">
+      <button class="nav-btn" data-vista="bracket" role="tab" aria-selected="false" aria-current="false">
         <span class="nav-btn__icon">🏆</span>
         <span class="nav-btn__label">Bracket</span>
       </button>
-      <button class="nav-btn" data-vista="estadisticas">
+      <button class="nav-btn" data-vista="estadisticas" role="tab" aria-selected="false" aria-current="false">
         <span class="nav-btn__icon">📊</span>
         <span class="nav-btn__label">Estadísticas</span>
       </button>
@@ -65,7 +65,7 @@
     <!-- Encabezado del dashboard -->
     <section class="dashboard-header">
       <div class="dashboard-header__tiza">
-        <h1 class="dashboard-header__titulo">EL POTRERO EN TIEMPO REAL</h1>
+        <h1 class="dashboard-header__titulo">MUNDIALITO EN TIEMPO REAL</h1>
         <p class="dashboard-header__subtitulo">Mundial 2026 — Fase de Grupos</p>
       </div>
       <div class="dashboard-header__fecha" id="fechaHoy"></div>
@@ -115,7 +115,7 @@
       <div class="album-section__header">
         <h2 class="album-section__titulo">
           <span class="album-badge">PANINI</span>
-          ÁLBUM POTRERO '26
+          JUGADORES
         </h2>
         <div class="album-filtro">
           <label class="album-filtro__label">Ver plantel de:</label>

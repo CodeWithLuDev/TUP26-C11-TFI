@@ -1,3 +1,4 @@
+import { initState } from "./logic/state.js";
 import { initGrupos } from "./ui/grupos.js";
 import { initFixture } from "./ui/fixture.js";
 import { initModal } from "./ui/modal.js";
@@ -11,18 +12,42 @@ function initNavegacion() {
     const navBtns = document.querySelectorAll(".nav-btn");
     const vistas = document.querySelectorAll(".vista");
 
-    navBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const target = btn.dataset.vista;
-            navBtns.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            vistas.forEach(v => v.classList.remove("active"));
-            document.getElementById(`vista-${target}`)?.classList.add("active");
-
-            // Renderizar estadísticas al entrar en esa vista
-            if (target === "estadisticas") renderEstadisticas();
+    function irAVista(target) {
+        navBtns.forEach(b => {
+            const on = b.dataset.vista === target;
+            b.classList.toggle("active", on);
+            b.setAttribute("aria-current", on ? "page" : "false");
+            b.setAttribute("aria-selected", on ? "true" : "false");
         });
+        vistas.forEach(v => v.classList.remove("active"));
+        document.getElementById(`vista-${target}`)?.classList.add("active");
+
+        if (target === "estadisticas") renderEstadisticas();
+
+        if (window.location.hash !== `#${target}`) {
+            history.pushState(null, "", `#${target}`);
+        }
+    }
+
+    navBtns.forEach(btn => {
+        btn.setAttribute("role", "tab");
+        btn.setAttribute("aria-selected", btn.classList.contains("active") ? "true" : "false");
+        btn.addEventListener("click", () => irAVista(btn.dataset.vista));
     });
+
+    window.addEventListener("hashchange", () => {
+        const target = window.location.hash.replace("#", "") || "dashboard";
+        irAVista(target);
+    });
+
+    window.addEventListener("popstate", () => {
+        const target = window.location.hash.replace("#", "") || "dashboard";
+        irAVista(target);
+    });
+
+    // Restaurar vista desde hash al cargar
+    const hash = window.location.hash.replace("#", "");
+    if (hash) irAVista(hash);
 }
 
 // ─── FECHA HEADER ─────────────────────────────────────────
@@ -54,6 +79,7 @@ function initZonaHoraria() {
 
 // ─── INIT GENERAL ─────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+    initState();
     initNavegacion();
     initFecha();
     initZonaHoraria();

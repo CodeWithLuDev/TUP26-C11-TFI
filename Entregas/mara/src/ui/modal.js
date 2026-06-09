@@ -4,7 +4,7 @@ import { getPlantelPorEquipo } from "../data/jugadores.js";
 import {
   guardarResultado, borrarResultado,
   guardarGol, borrarGolesDePartido,
-  getResultadoPartido
+  getResultadoPartido, getGoles
 } from "../logic/state.js";
 import { renderFixture, attachFixtureListeners } from "./fixture.js";
 import { actualizarTablaGrupo } from "./grupos.js";
@@ -104,6 +104,9 @@ function _renderModalBody(p, eqL, eqV, res) {
       </div>
     </div>
 
+    <!-- Timeline de goles (solo al editar resultado existente) -->
+    ${res?.jugado ? _renderTimeline(p.id, eqL, eqV) : ""}
+
     <!-- Sección goles opcionales -->
     <details style="margin-bottom:1rem;">
       <summary style="
@@ -123,6 +126,9 @@ function _renderModalBody(p, eqL, eqV, res) {
 
     <!-- Lista de goles cargados -->
     <div id="listaGolesModal"></div>
+
+    <!-- Feedback visual -->
+    <div id="modalError" style="display:none;background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.4);border-radius:4px;padding:0.5rem;margin-bottom:0.8rem;font-family:var(--font-tiza);font-size:0.85rem;color:var(--rojo-claro);text-align:center;"></div>
 
     <!-- Acciones -->
     <div class="modal-acciones">
@@ -208,9 +214,10 @@ function _attachModalListeners(p, eqL, eqV) {
       _renderListaGolesModal();
     });
 
-  // Borrar resultado
+  // Borrar resultado con confirmación
   document.getElementById("btnBorrarResultado")
     ?.addEventListener("click", () => {
+      if (!confirm("¿Eliminar este resultado? No se puede deshacer.")) return;
       borrarResultado(p.id);
       borrarGolesDePartido(p.id);
       cerrarModal();
@@ -222,13 +229,15 @@ function _attachModalListeners(p, eqL, eqV) {
   // Confirmar resultado
   document.getElementById("btnConfirmarResultado")
     ?.addEventListener("click", () => {
+      const errEl = document.getElementById("modalError");
       const gl = parseInt(document.getElementById("golesLocal")?.value ?? "0", 10);
       const gv = parseInt(document.getElementById("golesVisitante")?.value ?? "0", 10);
 
       if (isNaN(gl) || isNaN(gv) || gl < 0 || gv < 0) {
-        alert("Ingresá un marcador válido");
+        if (errEl) { errEl.textContent = "Ingresá un marcador válido"; errEl.style.display = "block"; }
         return;
       }
+      if (errEl) errEl.style.display = "none";
 
       // Guardar resultado
       guardarResultado(p.id, gl, gv);
@@ -252,10 +261,45 @@ function _attachModalListeners(p, eqL, eqV) {
     });
 }
 
+// ─── TIMELINE DE GOLES ─────────────────────────────────────
+function _renderTimeline(partidoId, eqL, eqV) {
+  const goles = getGoles().filter(g => g.partidoId === partidoId && g.tipo === "gol");
+  if (!goles.length) return "";
+
+  return `
+    <div style="margin-bottom:1rem;padding:0.6rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+      <div style="font-family:var(--font-tiza);font-size:0.8rem;color:var(--oro-claro);margin-bottom:0.5rem;">
+        ⚽ Timeline del partido
+      </div>
+      ${goles.map(g => {
+        const esLocal = g.equipoId === eqL.id;
+        const badge = esLocal ? eqL.bandera : eqV.bandera;
+        const color = esLocal ? "var(--celeste-arg)" : "var(--rojo-claro)";
+        const alinear = esLocal ? "flex-start" : "flex-end";
+        return `
+          <div style="display:flex;justify-content:${alinear};margin-bottom:0.3rem;">
+            <div style="display:flex;align-items:center;gap:0.4rem;background:rgba(255,255,255,0.05);padding:0.25rem 0.6rem;border-radius:4px;border-left:3px solid ${color};">
+              <span>${badge}</span>
+              <span style="font-size:0.75rem;">${g.goleador}</span>
+              <span style="font-size:0.6rem;color:var(--tiza-sucia);">⚽</span>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
 // ─── LISTA TEMPORAL DE GOLES ──────────────────────────────
 function _renderListaGolesModal() {
   const el = document.getElementById("listaGolesModal");
-  if (!el || _golesEnCurso.length === 0) return;
+  if (!el) return;
+
+  if (_golesEnCurso.length === 0) {
+    el.innerHTML = "";
+    el.onclick = null;
+    return;
+  }
 
   el.innerHTML = `
     <div style="
@@ -268,7 +312,7 @@ function _renderListaGolesModal() {
       ${_golesEnCurso.map((g, i) => `
         <div style="display:flex;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
           <span>${g.tipo === "gol" ? "⚽" : "🎯"} ${g.goleador}</span>
-          <button onclick="window.__quitarGolModal(${i})"
+          <button class="btn-quitar-gol" data-index="${i}"
             style="background:none;border:none;color:var(--rojo-claro);cursor:pointer;font-size:0.8rem;">
             ✕
           </button>
@@ -277,8 +321,10 @@ function _renderListaGolesModal() {
     </div>
   `;
 
-  // Helper global para quitar gol de la lista temporal
-  window.__quitarGolModal = (idx) => {
+  el.onclick = e => {
+    const btn = e.target.closest(".btn-quitar-gol");
+    if (!btn) return;
+    const idx = parseInt(btn.dataset.index, 10);
     _golesEnCurso.splice(idx, 1);
     _renderListaGolesModal();
   };
