@@ -92,7 +92,7 @@ export default function MatchCard({ partido }) {
               onChange={e => setGolesVisitante(e.target.value)} className="input-goles" />
           </div>
 
-          <div className={`equipo visitante ${resultado === "visitante" ? "ganador" : ""}`}>
+          <div className={`equipo ${resultado === "visitante" ? "ganador" : ""}`}>
             <Flag equipoId={partido.id_visitante} size="w40" className="bandera-img" />
             <span className="nombre">{equipoVisitante.nombre}</span>
           </div>

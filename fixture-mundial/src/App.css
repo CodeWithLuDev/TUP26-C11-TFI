@@ -2,6 +2,29 @@
    App.css — Estilos del Fixture Mundial 2026
    ============================================= */
 
+/* ===== VARIABLES CSS (tema oscuro por defecto) ===== */
+:root {
+  --bg: #0a1a0e;
+  --bg-card: #0f2e18;
+  --bg-card-alt: #0f2416;
+  --bg-header: #0a2412;
+  --bg-active: #1a5a2e;
+  --bg-input: #091a0e;
+  --bg-hover: #1a4828;
+  --bg-overlay: rgba(0,0,0,0.5);
+  --border: #1e4a28;
+  --border-hover: #2a6e3a;
+  --border-gold: #c9a227;
+  --text: #aaccaa;
+  --text-primary: #e8eaf0;
+  --text-secondary: #b8d4b0;
+  --text-muted: #7a9a7a;
+  --text-light: #ffffff;
+  --accent: #c9a227;
+  --accent-bg: #cfb53b;
+  --accent-text: #0a1a0e;
+}
+
 /* Reset básico */
 * {
   box-sizing: border-box;
@@ -11,8 +34,8 @@
 
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background-color: #0a1a0e;
-  color: #e8eaf0;
+  background-color: var(--bg);
+  color: var(--text-primary);
   min-height: 100vh;
 }
 
@@ -95,7 +118,7 @@ body {
 
 .landing-bandera-nombre {
   font-size: 0.7rem;
-  color: #b8d4b0;
+  color: var(--text-secondary);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -104,7 +127,7 @@ body {
 .landing-boton {
   background: #cfb53b;
   border: none;
-  color: #0a1a0e;
+  color: var(--accent-text);
   padding: 16px 56px;
   border-radius: 10px;
   font-size: 1.15rem;
@@ -124,7 +147,7 @@ body {
 
 /* ===== SECCIÓN HISTÓRICA (Landing) ===== */
 .historia-section {
-  background: #0a1a0e;
+  background: var(--bg);
   padding: 60px 24px;
   display: flex;
   flex-direction: column;
@@ -150,8 +173,8 @@ body {
 }
 
 .historia-card {
-  background: #0f2416;
-  border: 1px solid #1e4a28;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 2rem;
   text-align: center;
@@ -180,7 +203,7 @@ body {
 }
 
 .historia-card-texto {
-  color: #b0b5c0;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.6;
   margin: 0;
@@ -232,7 +255,7 @@ body {
 }
 .btn-reset:hover {
   background: #c9a227;
-  color: #0a1a0e;
+  color: var(--accent-text);
 }
 
 /* ===== NAVEGACIÓN ===== */
@@ -241,13 +264,13 @@ body {
   gap: 4px;
   background: #0f2e18;
   padding: 10px 24px;
-  border-bottom: 1px solid #1e4a28;
+  border-bottom: 1px solid var(--border);
 }
 
 .nav-principal button {
   background: transparent;
   border: none;
-  color: #7a9a7a;
+  color: var(--text-muted);
   padding: 8px 18px;
   border-radius: 6px;
   cursor: pointer;
@@ -259,13 +282,13 @@ body {
 }
 
 .nav-principal button:hover {
-  background: #1a5a2e;
+  background: var(--bg-active);
   color: #e8eaf0;
 }
 
 .nav-principal button.activo {
   background: #c9a227;
-  color: #0a1a0e;
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -279,9 +302,9 @@ body {
 }
 
 .selector-grupos button {
-  background: #1a5a2e;
-  border: 1px solid #2a6e3a;
-  color: #aaccaa;
+  background: var(--bg-active);
+  border: 1px solid var(--border-hover);
+  color: var(--text);
   width: 38px;
   height: 38px;
   border-radius: 6px;
@@ -293,14 +316,14 @@ body {
 }
 
 .selector-grupos button:hover {
-  background: #2a6e3a;
-  color: #ffffff;
+  background: var(--bg-hover);
+  color: var(--text-light);
 }
 
 .selector-grupos button.activo {
   background: #c9a227;
   border-color: #c9a227;
-  color: #0a1a0e;
+  color: var(--accent-text);
 }
 
 /* ===== CONTENIDO PRINCIPAL ===== */
@@ -312,16 +335,16 @@ body {
 
 .grupos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   gap: 14px;
 }
 
 /* ===== TABLA DE POSICIONES ===== */
 .group-table {
-  background: #0f2e18;
+  background: var(--bg-card);
   border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #1e4a28;
+  overflow-x: auto;
+  border: 1px solid var(--border);
 }
 
 .group-title {
@@ -331,8 +354,8 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  border-bottom: 1px solid #1e4a28;
-  background: #0a2412;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-header);
 }
 
 table {
@@ -341,31 +364,33 @@ table {
 }
 
 thead tr {
-  background: #0a2412;
+  background: var(--bg-header);
 }
 
 thead th {
-  padding: 8px 8px;
+  padding: 8px 4px;
   text-align: center;
-  font-size: 0.75rem;
-  color: #7a9a7a;
+  font-size: 0.68rem;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   cursor: help;
+  min-width: 26px;
 }
 
 thead th.col-equipo {
   text-align: left;
-  padding-left: 12px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 tbody tr {
-  border-bottom: 1px solid #1a4028;
+  border-bottom: 1px solid var(--border);
   transition: background 0.15s;
 }
 
 tbody tr:hover {
-  background: #1a4828;
+  background: var(--bg-hover);
 }
 
 tbody tr.clasificado {
@@ -373,18 +398,19 @@ tbody tr.clasificado {
 }
 
 tbody td {
-  padding: 8px 8px;
+  padding: 8px 6px;
   text-align: center;
   font-size: 0.85rem;
 }
 
 tbody td.col-equipo {
   text-align: left;
-  padding-left: 12px;
+  padding-left: 10px;
+  padding-right: 10px;
   white-space: nowrap;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.3px;
 }
 
 .equipo-clickeable {
@@ -407,9 +433,10 @@ td.positivo { color: #4caf7d; font-weight: 600; }
 td.negativo { color: #e05252; font-weight: 600; }
 
 td.puntos {
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 1.1rem;
   color: #c9a227;
+  letter-spacing: 0.5px;
 }
 
 /* ===== PLANTILLA / SQUAD ===== */
@@ -442,7 +469,7 @@ td.puntos {
 /* ===== MATCH CARD ===== */
 .match-card {
   background: #0f2e18;
-  border: 1px solid #1e4a28;
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px;
   display: flex;
@@ -452,7 +479,7 @@ td.puntos {
 }
 
 .match-card:hover {
-  border-color: #2a6e3a;
+  border-color: var(--border-hover);
 }
 
 .match-card.finalizado {
@@ -471,7 +498,7 @@ td.puntos {
 .match-equipos {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -482,17 +509,19 @@ td.puntos {
   gap: 4px;
   flex: 1 1 0;
   min-width: 0;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #aaccaa;
+  letter-spacing: 0.2px;
+  color: var(--text);
 }
 .equipo .nombre {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.2;
+  text-align: center;
+  width: 100%;
 }
 
 .equipo.ganador .nombre {
@@ -503,7 +532,9 @@ td.puntos {
 .marcador {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .input-goles {
@@ -512,10 +543,10 @@ td.puntos {
   text-align: center;
   font-size: 1.6rem;
   font-weight: 800;
-  background: #091a0e;
-  border: 1px solid #2a6e3a;
+  background: var(--bg-input);
+  border: 1px solid var(--border-hover);
   border-radius: 8px;
-  color: #ffffff;
+  color: var(--text-light);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -532,14 +563,14 @@ td.puntos {
 
 .separador {
   font-size: 1.8rem;
-  color: #7a9a7a;
+  color: var(--text-muted);
   font-weight: 300;
 }
 
 .btn-guardar {
-  background: #1a5a2e;
-  border: 1px solid #2a6e3a;
-  color: #aaccaa;
+  background: var(--bg-active);
+  border: 1px solid var(--border-hover);
+  color: var(--text);
   padding: 8px 20px;
   border-radius: 6px;
   cursor: pointer;
@@ -554,7 +585,7 @@ td.puntos {
 .btn-guardar:hover {
   background: #c9a227;
   border-color: #c9a227;
-  color: #0a1a0e;
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -573,16 +604,81 @@ td.puntos {
 }
 
 .por-definir {
-  color: #7a9a7a;
+  color: var(--text-muted);
   font-style: italic;
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
-  .app-header h1 { font-size: 1.2rem; }
+@media (max-width: 768px) {
+  .app-header { padding: 14px 16px; }
+  .app-header h1 { font-size: 1.1rem; }
+  .app-header h1 img { height: 60px !important; }
+
+  .nav-principal { gap: 4px; padding: 8px 8px; }
+  .nav-principal button { font-size: 0.7rem; padding: 6px 10px; letter-spacing: 1px; }
+
+  .grupos-grid { grid-template-columns: 1fr; }
   .contenido { padding: 12px; }
+
   .partidos-grid { grid-template-columns: 1fr; }
-  .selector-grupos { padding: 10px 12px; }
+  .selector-grupos { padding: 10px 12px; gap: 6px; }
+  .selector-grupos button { width: 34px; height: 34px; font-size: 0.75rem; }
+
+  .modal { width: 95%; padding: 16px; }
+  .slot-opcion { font-size: 0.8rem; padding: 6px 10px; }
+
+  .app-footer-botones { flex-direction: column; align-items: center; gap: 8px; }
+
+  .fixture-nav { flex-wrap: wrap; gap: 6px; }
+  .fixture-card { flex-direction: column; }
+
+  .scorers-table { font-size: 0.8rem; }
+  .scorers-filtros { flex-direction: column; align-items: stretch; }
+}
+
+@media (max-width: 480px) {
+  .app-header { padding: 10px 12px; }
+  .app-header h1 { font-size: 0.95rem; }
+  .app-header h1 img { height: 40px !important; }
+
+  .nav-principal { gap: 2px; padding: 6px 4px; overflow-x: auto; }
+  .nav-principal button { font-size: 0.65rem; padding: 5px 8px; letter-spacing: 0.5px; flex-shrink: 0; }
+
+  .match-card { padding: 12px; }
+  .match-equipos { gap: 6px; }
+  .equipo { font-size: 0.65rem; }
+  .input-goles { width: 42px; height: 42px; font-size: 1.2rem; }
+  .separador { font-size: 1.3rem; }
+
+  .grupos-grid { gap: 10px; }
+  .group-title { padding: 12px 14px; font-size: 0.85rem; }
+  thead th { padding: 6px 3px; font-size: 0.6rem; min-width: 20px; }
+  tbody td { padding: 6px 4px; font-size: 0.75rem; }
+
+  .btn-guardar { font-size: 0.7rem; padding: 6px 14px; }
+  .estado-badge { font-size: 0.7rem; padding: 4px 10px; }
+
+  .landing-titulo { font-size: 1.8rem; letter-spacing: 2px; }
+  .landing-card { padding: 24px 16px; }
+  .landing-boton { padding: 12px 32px; font-size: 0.95rem; }
+  .landing-bandera-container { gap: 14px; }
+  .logo-mundial { width: 160px; }
+
+  .modal { padding: 12px; }
+  .modal h3 { font-size: 0.95rem; }
+
+  .scorers-table tbody td { padding: 8px 6px; font-size: 0.78rem; }
+  .scorers-busqueda input { max-width: 100%; }
+
+  .fixture-card { padding: 10px; }
+  .fixture-nombre { font-size: 0.75rem; }
+
+  .app-footer { padding: 14px 12px; }
+  .footer-datos { font-size: 0.65rem; gap: 8px; flex-direction: column; align-items: center; }
+
+  .btn-simular { font-size: 0.7rem; padding: 5px 10px; }
+  .btn-reset { font-size: 0.7rem; padding: 5px 10px; }
+  .btn-icono-pelota { width: 22px; height: 22px; }
 }
 
 /* ===== MODAL DE GOLEADORES ===== */
@@ -621,7 +717,7 @@ td.puntos {
 
 .modal-subtitulo {
   text-align: center;
-  color: #aaccaa;
+  color: var(--text);
   font-size: 0.9rem;
 }
 
@@ -642,16 +738,16 @@ td.puntos {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #7a9a7a;
+  color: var(--text-muted);
 }
 
 .slot-local .slot-equipo   { color: #4caf7d; }
 .slot-visitante .slot-equipo { color: #c9a227; }
 
 .slot-busqueda {
-  background: #091a0e;
-  border: 1px solid #2a6e3a;
-  color: #d4e6d4;
+  background: var(--bg-input);
+  border: 1px solid var(--border-hover);
+  color: var(--text-primary);
   padding: 8px;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -674,16 +770,16 @@ td.puntos {
   gap: 4px;
   max-height: 120px;
   overflow-y: auto;
-  background: #091a0e;
-  border: 1px solid #1e4a28;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 4px;
 }
 
 .slot-opcion {
-  background: #1a4828;
-  border: 1px solid #2a6e3a;
-  color: #b8d4b0;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-hover);
+  color: var(--text-secondary);
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.78rem;
@@ -692,14 +788,14 @@ td.puntos {
 }
 
 .slot-opcion:hover {
-  background: #2a6e3a;
-  color: #fff;
+  background: var(--bg-hover);
+  color: var(--text-light);
 }
 
 .slot-opcion.seleccionada {
   background: #c9a227;
   border-color: #c9a227;
-  color: #0a1a0e;
+  color: var(--accent-text);
   font-weight: 600;
 }
 
@@ -720,7 +816,7 @@ td.puntos {
   flex: 1;
   background: #c9a227;
   border: none;
-  color: #0a1a0e;
+  color: var(--accent-text);
   padding: 10px;
   border-radius: 6px;
   font-weight: 700;
@@ -733,8 +829,8 @@ td.puntos {
 .btn-omitir {
   flex: 1;
   background: transparent;
-  border: 1px solid #2a6e3a;
-  color: #7a9a7a;
+  border: 1px solid var(--border-hover);
+  color: var(--text-muted);
   padding: 10px;
   border-radius: 6px;
   cursor: pointer;
@@ -743,9 +839,9 @@ td.puntos {
 
 /* ===== TABLA DE GOLEADORES ===== */
 .scorers-container {
-  background: #0f2e18;
+  background: var(--bg-card);
   border-radius: 10px;
-  border: 1px solid #1e4a28;
+  border: 1px solid var(--border);
   overflow: hidden;
 }
 
@@ -756,13 +852,13 @@ td.puntos {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  border-bottom: 1px solid #1e4a28;
-  background: #0a2412;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-header);
 }
 
 .scorers-busqueda {
   padding: 10px 16px;
-  border-bottom: 1px solid #1e4a28;
+  border-bottom: 1px solid var(--border);
 }
 
 .scorers-busqueda input {
@@ -770,9 +866,9 @@ td.puntos {
   max-width: 320px;
   padding: 8px 12px;
   border-radius: 6px;
-  border: 1px solid #2a6e3a;
-  background: #0a1a0e;
-  color: #d4e6d4;
+  border: 1px solid var(--border-hover);
+  background: var(--bg-input);
+  color: var(--text-primary);
   font-size: 0.9rem;
   outline: none;
   box-sizing: border-box;
@@ -792,14 +888,14 @@ td.puntos {
 }
 
 .scorers-table thead tr {
-  background: #0a2412;
+  background: var(--bg-header);
 }
 
 .scorers-table thead th {
   padding: 10px 12px;
   text-align: center;
   font-size: 0.8rem;
-  color: #7a9a7a;
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
@@ -814,12 +910,12 @@ td.puntos {
 }
 
 .scorers-table tbody tr {
-  border-bottom: 1px solid #1a4028;
+  border-bottom: 1px solid var(--border);
   transition: background 0.15s;
 }
 
 .scorers-table tbody tr:hover {
-  background: #1a4828;
+  background: var(--bg-hover);
 }
 
 .scorers-table tbody tr.top-scorer {
@@ -850,7 +946,7 @@ td.puntos {
 .sin-goles {
   padding: 24px;
   text-align: center;
-  color: #7a9a7a;
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -859,11 +955,44 @@ td.puntos {
   display: flex;
   gap: 12px;
   justify-content: center;
-  padding: 24px 16px 40px;
+  padding: 24px 16px;
+}
+
+.app-footer {
+  background: var(--bg-header);
+  border-top: 1px solid var(--border);
+  padding: 20px 16px;
+  margin-top: 8px;
+}
+
+.app-footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-datos {
+  display: flex;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-copy {
+  font-size: 0.68rem;
+  color: #5a7a5a;
 }
 
 .btn-simular {
-  background: #1a5a2e;
+  background: var(--bg-active);
   border: 1px solid #c9a227;
   color: #c9a227;
   padding: 6px 14px;
@@ -887,7 +1016,7 @@ td.puntos {
 
 .btn-simular:hover:not(:disabled) {
   background: #c9a227;
-  color: #0a1a0e;
+  color: var(--accent-text);
 }
 
 .btn-simular:disabled {
@@ -897,9 +1026,9 @@ td.puntos {
 
 /* ===== BRACKET FORMATO CHAMPIONS LEAGUE ===== */
 .bracket-wrapper {
-  background: #0f2e18;
+  background: var(--bg-card);
   border-radius: 10px;
-  border: 1px solid #1e4a28;
+  border: 1px solid var(--border);
   padding: 24px;
   overflow-x: auto;
   display: flex;
@@ -956,7 +1085,7 @@ td.puntos {
 
 .champion-name {
   font-size: 1.3rem;
-  color: #ffffff;
+  color: var(--text-light);
   font-weight: 700;
 }
 
@@ -1081,8 +1210,8 @@ td.puntos {
 
 /* === NODO PARTIDO === */
 .bracket-node {
-  background: #1a4828;
-  border: 1px solid #2a6e3a;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-hover);
   border-radius: 6px;
   padding: 4px 8px;
   display: flex;
@@ -1114,7 +1243,7 @@ td.puntos {
 
 .bracket-tbd {
   font-size: 0.65rem;
-  color: #7a9a7a;
+  color: var(--text-muted);
   font-style: italic;
   text-align: center;
   width: 100%;
@@ -1128,7 +1257,7 @@ td.puntos {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #aaccaa;
+  color: var(--text);
   height: 22px;
 }
 
@@ -1137,7 +1266,7 @@ td.puntos {
 }
 
 .bracket-equipo.bracket-ganador {
-  color: #ffffff;
+  color: var(--text-light);
   font-weight: 700;
 }
 
@@ -1156,10 +1285,10 @@ td.puntos {
   width: 26px;
   height: 22px;
   text-align: center;
-  background: #091a0e;
+  background: var(--bg-input);
   border: 1px solid #c9a227;
   border-radius: 3px;
-  color: #ffffff;
+  color: var(--text-light);
   font-weight: 700;
   font-size: 0.72rem;
   outline: none;
@@ -1389,7 +1518,7 @@ td.puntos {
   height: 16px;
   object-fit: cover;
   border-radius: 2px;
-  border: 1px solid #2a6e3a;
+  border: 1px solid var(--border-hover);
   flex-shrink: 0;
   vertical-align: middle;
 }
@@ -1477,7 +1606,7 @@ td.puntos {
 }
 
 .fixture-sede {
-  color: #b8d4b0;
+  color: var(--text-secondary);
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -1546,15 +1675,15 @@ td.puntos {
   align-items: center;
   gap: 8px;
   margin-bottom: 24px;
-  background: #0f2e18;
+  background: var(--bg-card);
   border-radius: 10px;
   padding: 10px 16px;
-  border: 1px solid #1e4a28;
+  border: 1px solid var(--border);
 }
 
 .fixture-nav-btn {
-  background: #1a4828;
-  border: 1px solid #2a6e3a;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-hover);
   color: #c9a227;
   font-size: 1rem;
   padding: 6px 10px;
@@ -1564,7 +1693,7 @@ td.puntos {
 }
 
 .fixture-nav-btn:hover {
-  background: #2a6e3a;
+  background: var(--bg-hover);
 }
 
 .fixture-nav-fecha {
@@ -1576,9 +1705,9 @@ td.puntos {
 }
 
 .fixture-date-input {
-  background: #0a1a0e;
-  border: 1px solid #2a6e3a;
-  color: #d4e6d4;
+  background: var(--bg-input);
+  border: 1px solid var(--border-hover);
+  color: var(--text-primary);
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 0.8rem;
@@ -1602,8 +1731,8 @@ td.puntos {
 
 .fixture-nav-hoy {
   background: transparent;
-  border: 1px solid #2a6e3a;
-  color: #b8d4b0;
+  border: 1px solid var(--border-hover);
+  color: var(--text-secondary);
   font-size: 0.75rem;
   padding: 6px 12px;
   border-radius: 6px;
@@ -1612,7 +1741,7 @@ td.puntos {
 }
 
 .fixture-nav-hoy:hover {
-  background: #1a4828;
+  background: var(--bg-hover);
 }
 
 .fixture-nav-hoy.activo,
@@ -1624,6 +1753,6 @@ td.puntos {
 .fixture-empty {
   text-align: center;
   padding-top: 60px;
-  color: #7a9a7a;
+  color: var(--text-muted);
   font-style: italic;
 }

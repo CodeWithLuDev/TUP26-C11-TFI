@@ -29,7 +29,7 @@ export default function App() {
   const [grupoActivo, setGrupoActivo]   = useState("A");
   const [simulando, setSimulando]       = useState(false);
 
-  if (!ingreso) return <LandingPage onIngresar={() => { setIngreso(true); setSeccion("informacion"); }} />;
+  if (!ingreso) return <LandingPage onIngresar={() => { setIngreso(true); setSeccion("nuevoFixture"); }} />;
 
   const partidosDelGrupo = partidos.filter(p => p.grupo === grupoActivo && p.fase === "Grupos");
 
@@ -112,6 +112,18 @@ export default function App() {
           Resetear
         </button>
       </div>
+
+      <footer className="app-footer">
+        <div className="app-footer-inner">
+          <div className="footer-datos">
+            <span>Mundial 2026</span>
+            <span>Estados Unidos · Canadá · México</span>
+          </div>
+          <div className="footer-copy">
+            &copy; {new Date().getFullYear()} — Todos los derechos reservados
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
