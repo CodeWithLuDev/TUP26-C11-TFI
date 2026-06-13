@@ -8,8 +8,19 @@ import Bracket from "./components/Bracket";
 import LandingPage from "./components/LandingPage";
 import FixtureCard from "./components/FixtureCard";
 import "./App.css";
+import logoMundial from "./imagen/mundial_2026.png";
+import pelota from "./imagen/pelota.png";
 
 const GRUPOS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
+
+const tarjetasInfo = [
+  { icono: "🌍", titulo: "48 Selecciones", texto: "Por primera vez en la historia, 48 equipos competirán por la gloria mundial, aumentando desde las 32 tradicionales." },
+  { icono: "🏟️", titulo: "16 Ciudades Sede", texto: "Tres países anfitriones con 16 estadios de clase mundial distribuidos en Estados Unidos, Canadá y México." },
+  { icono: "⚽", titulo: "104 Partidos", texto: "El torneo más largo de la historia con 104 encuentros a lo largo de 39 días de competencia." },
+  { icono: "🏆", titulo: "Nuevo Formato", texto: "12 grupos de 4 equipos, con los dos primeros y los 8 mejores terceros avanzando a octavos de final." },
+  { icono: "📅", titulo: "11 Jun - 19 Jul", texto: "El torneo se disputará en verano, con la final programada para el 19 de julio en el MetLife Stadium." },
+  { icono: "🌎", titulo: "Tres Naciones", texto: "Primera vez que tres países organizan conjuntamente una Copa del Mundo FIFA." },
+];
 
 export default function App() {
   const { partidos, resetearDatos, simularTodo } = useAppContext();
@@ -18,12 +29,11 @@ export default function App() {
   const [grupoActivo, setGrupoActivo]   = useState("A");
   const [simulando, setSimulando]       = useState(false);
 
-  if (!ingreso) return <LandingPage onIngresar={() => { setIngreso(true); setSeccion("nuevoFixture"); }} />;
+  if (!ingreso) return <LandingPage onIngresar={() => { setIngreso(true); setSeccion("informacion"); }} />;
 
   const partidosDelGrupo = partidos.filter(p => p.grupo === grupoActivo && p.fase === "Grupos");
 
   async function handleSimular() {
-    if (!window.confirm("¿Simular todos los partidos pendientes?")) return;
     setSimulando(true);
     setTimeout(() => {
       simularTodo();
@@ -35,17 +45,7 @@ export default function App() {
     <div className="app">
       <div className="app-sticky">
         <header className="app-header">
-          <h1>⚽ Fixture Mundial 2026</h1>
-          <div className="header-botones">
-            <button className="btn-simular" onClick={handleSimular} disabled={simulando}>
-              {simulando ? "Simulando..." : "🎲 Simular todo"}
-            </button>
-            <button className="btn-reset" onClick={() => {
-              if (window.confirm("¿Borrar todos los resultados?")) resetearDatos();
-            }}>
-              Resetear
-            </button>
-          </div>
+          <h1><img src={logoMundial} alt="Logo" style={{ height: 100, marginRight: 10, verticalAlign: "middle" }} />Mundial 2026</h1>
         </header>
 
         <nav className="nav-principal">
@@ -55,6 +55,7 @@ export default function App() {
             { key: "nuevoFixture", label: "Calendario" },
             { key: "eliminatoria", label: "Eliminatorias" },
             { key: "goleadores",   label: "Goleadores" },
+            { key: "informacion",  label: "Información" },
           ].map(({ key, label }) => (
             <button key={key} className={seccion === key ? "activo" : ""} onClick={() => setSeccion(key)}>
               {label}
@@ -85,7 +86,32 @@ export default function App() {
         {seccion === "nuevoFixture" && <FixtureCard />}
         {seccion === "eliminatoria" && <Bracket />}
         {seccion === "goleadores"   && <Scorers />}
+        {seccion === "informacion"  && (
+          <section className="historia-section">
+            <h2 className="historia-titulo">Un Mundial Histórico</h2>
+            <div className="historia-grid">
+              {tarjetasInfo.map((t, i) => (
+                <div key={i} className="historia-card">
+                  <div className="historia-icono">{t.icono}</div>
+                  <h3 className="historia-card-titulo">{t.titulo}</h3>
+                  <p className="historia-card-texto">{t.texto}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
+
+      <div className="app-footer-botones">
+        <button className="btn-simular" onClick={handleSimular} disabled={simulando}>
+          {simulando ? "Simulando..." : <><img src={pelota} alt="" className="btn-icono-pelota" /> Simular partido</>}
+        </button>
+        <button className="btn-reset" onClick={() => {
+          resetearDatos();
+        }}>
+          Resetear
+        </button>
+      </div>
     </div>
   );
 }
