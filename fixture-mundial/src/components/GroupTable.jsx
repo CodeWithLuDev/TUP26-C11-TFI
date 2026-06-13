@@ -1,40 +1,32 @@
-
+// src/components/GroupTable.jsx
 import React, { useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { calculateGroupStandings } from "../utils/logic";
+import { jugadores } from "../data/jugadores";
+import Flag from "./Flag";
 
-function SquadList({ equipoId }) {
-  const { getJugadoresByEquipo } = useAppContext();
-  const [abierto, setAbierto] = useState(false);
-  const jugadores = getJugadoresByEquipo(equipoId);
+const posicionLabel = {
+  AR: "Arqueros",
+  DEF: "Defensores",
+  MED: "Mediocampistas",
+  DEL: "Delanteros",
+};
 
-  const posicionLabel = {
-    AR: "Arqueros",
-    DEF: "Defensores",
-    MED: "Mediocampistas",
-    DEL: "Delanteros",
-  };
-
+function SquadContent({ equipoId }) {
+  const plantel = jugadores[equipoId] || [];
   const agrupados = { AR: [], DEF: [], MED: [], DEL: [] };
-  jugadores.forEach(j => {
+  plantel.forEach(j => {
     if (agrupados[j.posicion]) agrupados[j.posicion].push(j.nombre);
   });
 
   return (
-    <div className="squad-container">
-      <button className="btn-squad" onClick={() => setAbierto(!abierto)}>
-        {abierto ? "Ocultar plantilla" : "Ver plantilla"} ({jugadores.length})
-      </button>
-      {abierto && (
-        <div className="squad-list">
-          {Object.entries(agrupados).map(([pos, nombres]) =>
-            nombres.length > 0 && (
-              <div key={pos} className="squad-posicion">
-                <strong>{posicionLabel[pos]}:</strong> {nombres.join(" | ")}
-              </div>
-            )
-          )}
-        </div>
+    <div className="squad-list">
+      {Object.entries(agrupados).map(([pos, nombres]) =>
+        nombres.length > 0 && (
+          <div key={pos} className="squad-posicion">
+            <strong>{posicionLabel[pos]}:</strong> {nombres.join(" | ")}
+          </div>
+        )
       )}
     </div>
   );
@@ -42,8 +34,17 @@ function SquadList({ equipoId }) {
 
 export default function GroupTable({ grupo }) {
   const { equipos, partidos } = useAppContext();
+  const [abiertos, setAbiertos] = useState(new Set());
 
-  
+  const toggle = (id) => {
+    setAbiertos(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const tabla = useMemo(
     () => calculateGroupStandings(equipos, partidos, grupo),
     [equipos, partidos, grupo]
@@ -73,8 +74,8 @@ export default function GroupTable({ grupo }) {
             <React.Fragment key={equipo.id}>
               <tr className={index < 2 ? "clasificado" : ""}>
                 <td>{index + 1}</td>
-                <td className="col-equipo">
-                  <span className="bandera">{equipo.bandera}</span>
+                <td className="col-equipo equipo-clickeable" onClick={() => toggle(equipo.id)}>
+                  <Flag equipoId={equipo.id} size="w40" className="bandera-img" />
                   {equipo.nombre}
                 </td>
                 <td>{equipo.PJ}</td>
@@ -88,11 +89,13 @@ export default function GroupTable({ grupo }) {
                 </td>
                 <td className="puntos">{equipo.PTS}</td>
               </tr>
-              <tr>
-                <td colSpan="10" style={{ padding: 0, border: "none" }}>
-                  <SquadList equipoId={equipo.id} />
-                </td>
-              </tr>
+              {abiertos.has(equipo.id) && (
+                <tr>
+                  <td colSpan="10" style={{ padding: 0, border: "none" }}>
+                    <SquadContent equipoId={equipo.id} />
+                  </td>
+                </tr>
+              )}
             </React.Fragment>
           ))}
         </tbody>

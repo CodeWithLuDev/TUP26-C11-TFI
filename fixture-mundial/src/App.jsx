@@ -1,125 +1,91 @@
-
+// src/App.jsx
 import React, { useState } from "react";
 import { useAppContext } from "./context/AppContext";
 import GroupTable from "./components/GroupTable";
 import MatchCard from "./components/MatchCard";
+import Scorers from "./components/Scorers";
+import Bracket from "./components/Bracket";
+import LandingPage from "./components/LandingPage";
+import FixtureCard from "./components/FixtureCard";
 import "./App.css";
 
-const GRUPOS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
-const FASES  = ["Grupos", "Octavos", "Cuartos", "Semis", "Final"];
+const GRUPOS = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 
 export default function App() {
-  const { partidos, resetearDatos } = useAppContext();
+  const { partidos, resetearDatos, simularTodo } = useAppContext();
+  const [ingreso, setIngreso]           = useState(false);
+  const [seccion, setSeccion]           = useState("grupos");
+  const [grupoActivo, setGrupoActivo]   = useState("A");
+  const [simulando, setSimulando]       = useState(false);
 
-  // Estado local para navegación
-  const [seccion, setSeccion]     = useState("grupos");   // "grupos" | "fixture" | "eliminatoria"
-  const [grupoActivo, setGrupoActivo] = useState("A");
-  const [faseActiva, setFaseActiva]   = useState("Octavos");
+  if (!ingreso) return <LandingPage onIngresar={() => { setIngreso(true); setSeccion("nuevoFixture"); }} />;
 
-  // Filtrar partidos según la vista activa
-  const partidosDelGrupo = partidos.filter(
-    p => p.grupo === grupoActivo && p.fase === "Grupos"
-  );
-  const partidosDeFase = partidos.filter(p => p.fase === faseActiva);
+  const partidosDelGrupo = partidos.filter(p => p.grupo === grupoActivo && p.fase === "Grupos");
+
+  async function handleSimular() {
+    if (!window.confirm("¿Simular todos los partidos pendientes?")) return;
+    setSimulando(true);
+    setTimeout(() => {
+      simularTodo();
+      setSimulando(false);
+    }, 600);
+  }
 
   return (
     <div className="app">
+      <div className="app-sticky">
+        <header className="app-header">
+          <h1>⚽ Fixture Mundial 2026</h1>
+          <div className="header-botones">
+            <button className="btn-simular" onClick={handleSimular} disabled={simulando}>
+              {simulando ? "Simulando..." : "🎲 Simular todo"}
+            </button>
+            <button className="btn-reset" onClick={() => {
+              if (window.confirm("¿Borrar todos los resultados?")) resetearDatos();
+            }}>
+              Resetear
+            </button>
+          </div>
+        </header>
 
-      {/* ===== HEADER ===== */}
-      <header className="app-header">
-        <h1>⚽ Fixture Mundial 2026</h1>
-        <button
-          className="btn-reset"
-          onClick={() => {
-            if (window.confirm("¿Seguro que querés borrar todos los resultados?")) {
-              resetearDatos();
-            }
-          }}
-        >
-          Resetear datos
-        </button>
-      </header>
+        <nav className="nav-principal">
+          {[
+            { key: "grupos",       label: "Posiciones" },
+            { key: "fixture",      label: "Partidos" },
+            { key: "nuevoFixture", label: "Calendario" },
+            { key: "eliminatoria", label: "Eliminatorias" },
+            { key: "goleadores",   label: "Goleadores" },
+          ].map(({ key, label }) => (
+            <button key={key} className={seccion === key ? "activo" : ""} onClick={() => setSeccion(key)}>
+              {label}
+            </button>
+          ))}
+        </nav>
+      </div>
 
-      {/* ===== NAVEGACIÓN PRINCIPAL ===== */}
-      <nav className="nav-principal">
-        <button
-          className={seccion === "grupos" ? "activo" : ""}
-          onClick={() => setSeccion("grupos")}
-        >
-          Posiciones
-        </button>
-        <button
-          className={seccion === "fixture" ? "activo" : ""}
-          onClick={() => setSeccion("fixture")}
-        >
-          Fixture Grupos
-        </button>
-        <button
-          className={seccion === "eliminatoria" ? "activo" : ""}
-          onClick={() => setSeccion("eliminatoria")}
-        >
-          Eliminatorias
-        </button>
-      </nav>
-
-      {/* ===== SELECTOR DE GRUPO ===== */}
-      {(seccion === "grupos" || seccion === "fixture") && (
+      {seccion === "fixture" && (
         <div className="selector-grupos">
           {GRUPOS.map(g => (
-            <button
-              key={g}
-              className={grupoActivo === g ? "activo" : ""}
-              onClick={() => setGrupoActivo(g)}
-            >
-              {g}
-            </button>
+            <button key={g} className={grupoActivo === g ? "activo" : ""} onClick={() => setGrupoActivo(g)}>{g}</button>
           ))}
         </div>
       )}
 
-      {/* ===== SELECTOR DE FASE ELIMINATORIA ===== */}
-      {seccion === "eliminatoria" && (
-        <div className="selector-grupos">
-          {FASES.filter(f => f !== "Grupos").map(f => (
-            <button
-              key={f}
-              className={faseActiva === f ? "activo" : ""}
-              onClick={() => setFaseActiva(f)}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* ===== CONTENIDO PRINCIPAL ===== */}
       <main className="contenido">
-
-        {/* Vista: Tabla de posiciones */}
-        {seccion === "grupos" && (
-          <GroupTable grupo={grupoActivo} />
-        )}
-
-        {/* Vista: Fixture de grupos */}
-        {seccion === "fixture" && (
-          <div className="partidos-grid">
-            {partidosDelGrupo.map(partido => (
-              <MatchCard key={partido.id} partido={partido} />
-            ))}
+        {seccion === "grupos"       && (
+          <div className="grupos-grid">
+            {GRUPOS.map(g => <GroupTable key={g} grupo={g} />)}
           </div>
         )}
-
-        {/* Vista: Fase eliminatoria */}
-        {seccion === "eliminatoria" && (
+        {seccion === "fixture"      && (
           <div className="partidos-grid">
-            {partidosDeFase.map(partido => (
-              <MatchCard key={partido.id} partido={partido} />
-            ))}
+            {partidosDelGrupo.map(p => <MatchCard key={p.id} partido={p} />)}
           </div>
         )}
-
+        {seccion === "nuevoFixture" && <FixtureCard />}
+        {seccion === "eliminatoria" && <Bracket />}
+        {seccion === "goleadores"   && <Scorers />}
       </main>
-
     </div>
   );
 }
