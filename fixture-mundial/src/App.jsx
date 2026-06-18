@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAppContext } from "./context/AppContext";
 import GroupTable from "./components/GroupTable";
 import MatchCard from "./components/MatchCard";
@@ -29,9 +29,20 @@ export default function App() {
   const [grupoActivo, setGrupoActivo]   = useState("A");
   const [simulando, setSimulando]       = useState(false);
 
-  if (!ingreso) return <LandingPage onIngresar={() => { setIngreso(true); setSeccion("nuevoFixture"); }} />;
-
   const partidosDelGrupo = partidos.filter(p => p.grupo === grupoActivo && p.fase === "Grupos");
+
+  const partidosPorFecha = useMemo(() => {
+    const grupos = {};
+    partidosDelGrupo.forEach(p => {
+      const matchNum = parseInt(p.id.slice(-1), 10);
+      const fechaKey = Math.ceil(matchNum / 2);
+      if (!grupos[fechaKey]) grupos[fechaKey] = [];
+      grupos[fechaKey].push(p);
+    });
+    return Object.entries(grupos).sort(([a], [b]) => Number(a) - Number(b));
+  }, [partidosDelGrupo]);
+
+  if (!ingreso) return <LandingPage onIngresar={() => { setIngreso(true); setSeccion("nuevoFixture"); }} />;
 
   async function handleSimular() {
     setSimulando(true);
@@ -80,7 +91,12 @@ export default function App() {
         )}
         {seccion === "fixture"      && (
           <div className="partidos-grid">
-            {partidosDelGrupo.map(p => <MatchCard key={p.id} partido={p} />)}
+            {partidosPorFecha.map(([fecha, matches]) => (
+              <div key={fecha} className="match-date-group">
+                <div className="match-date-header">FECHA {fecha}</div>
+                {matches.map(p => <MatchCard key={p.id} partido={p} />)}
+              </div>
+            ))}
           </div>
         )}
         {seccion === "nuevoFixture" && <FixtureCard />}

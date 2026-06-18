@@ -1,4 +1,3 @@
-// src/components/MatchCard.jsx
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { getEquipoById, getMatchResult } from "../utils/logic";
@@ -6,7 +5,7 @@ import { jugadores } from "../data/jugadores";
 import Flag from "./Flag";
 
 export default function MatchCard({ partido }) {
-  const { equipos, updateMatchResult } = useAppContext();
+  const { equipos, goleadores, updateMatchResult } = useAppContext();
 
   const [golesLocal, setGolesLocal]         = useState(partido.goles_local !== null ? partido.goles_local : "");
   const [golesVisitante, setGolesVisitante] = useState(partido.goles_visitante !== null ? partido.goles_visitante : "");
@@ -19,17 +18,18 @@ export default function MatchCard({ partido }) {
 
   if (!equipoLocal || !equipoVisitante) {
     return (
-      <div className="match-card pendiente">
+      <div className="match pendiente">
         <p className="por-definir">Por definirse</p>
       </div>
     );
   }
 
   const resultado = getMatchResult(partido);
+  const esFinalizado = partido.estado === "finalizado";
 
-  const fechaFormateada = new Date(partido.fecha).toLocaleDateString("es-AR", {
-    day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
-  });
+  const goleadoresPartido = goleadores.filter(g => g.partidoId === partido.id);
+  const goleadoresLocal = goleadoresPartido.filter(g => g.equipoId === partido.id_local);
+  const goleadoresVisitante = goleadoresPartido.filter(g => g.equipoId === partido.id_visitante);
 
   function handleGuardar() {
     if (golesLocal === "" || golesVisitante === "") {
@@ -75,39 +75,81 @@ export default function MatchCard({ partido }) {
 
   return (
     <>
-      <div className={`match-card ${partido.estado}`}>
-        <p className="match-fecha">Fecha {Math.ceil(parseInt(partido.id.slice(-1), 10) / 2)}</p>
+      <div className={`match ${esFinalizado ? "match--finalizado" : "match--pendiente"}`}>
+        {/* Fecha / Grupo */}
+        <div className="match-header">
+          <span>Fecha {Math.ceil(parseInt(partido.id.slice(-1), 10) / 2)} — Grupo {partido.grupo}</span>
+        </div>
 
-        <div className="match-equipos">
-          <div className={`equipo ${resultado === "local" ? "ganador" : ""}`}>
-            <Flag equipoId={partido.id_local} size="w40" className="bandera-img" />
-            <span className="nombre">{equipoLocal.nombre}</span>
+        {/* Scoreboard */}
+        <div className="match-scoreboard">
+          <div className="match-team match-team--home">
+            <span className="match-team-name">{equipoLocal.nombre}</span>
+            <Flag equipoId={partido.id_local} size="w40" className="match-team-flag" />
           </div>
 
-          <div className="marcador">
-            <input type="number" min="0" max="99" value={golesLocal}
-              onChange={e => setGolesLocal(e.target.value)} className="input-goles" />
-            <span className="separador">-</span>
-            <input type="number" min="0" max="99" value={golesVisitante}
-              onChange={e => setGolesVisitante(e.target.value)} className="input-goles" />
+          <div className={`match-score ${!esFinalizado ? "match-score--pending" : ""}`}>
+            {esFinalizado ? (
+              <>
+                <span className="match-score-value">{partido.goles_local}</span>
+                <span className="match-score-divider">–</span>
+                <span className="match-score-value">{partido.goles_visitante}</span>
+              </>
+            ) : (
+              <div className="match-score-inputs">
+                <input type="number" min="0" max="99" value={golesLocal}
+                  onChange={e => setGolesLocal(e.target.value)} className="match-input" />
+                <span className="match-score-divider">–</span>
+                <input type="number" min="0" max="99" value={golesVisitante}
+                  onChange={e => setGolesVisitante(e.target.value)} className="match-input" />
+              </div>
+            )}
           </div>
 
-          <div className={`equipo ${resultado === "visitante" ? "ganador" : ""}`}>
-            <Flag equipoId={partido.id_visitante} size="w40" className="bandera-img" />
-            <span className="nombre">{equipoVisitante.nombre}</span>
+          <div className="match-team match-team--away">
+            <Flag equipoId={partido.id_visitante} size="w40" className="match-team-flag" />
+            <span className="match-team-name">{equipoVisitante.nombre}</span>
           </div>
         </div>
 
-        <button className="btn-guardar" onClick={handleGuardar}>
-          Guardar resultado
-        </button>
+        {/* Scorers row */}
+        {esFinalizado && (goleadoresLocal.length > 0 || goleadoresVisitante.length > 0) && (
+          <div className="match-scorers">
+            <div className="match-scorers-half">
+              {goleadoresLocal.map(g => (
+                <span key={g.jugador} className="match-scorer">
+                  <span className="match-scorer-name">{g.jugador}</span>
+                  {g.cantidad > 1 && <span className="match-scorer-note"> ({g.cantidad})</span>}
+                </span>
+              ))}
+            </div>
+            <div className="match-scorers-half match-scorers-half--away">
+              {goleadoresVisitante.map(g => (
+                <span key={g.jugador} className="match-scorer">
+                  <span className="match-scorer-name">{g.jugador}</span>
+                  {g.cantidad > 1 && <span className="match-scorer-note"> ({g.cantidad})</span>}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
-        {partido.estado === "finalizado" && (
-          <p className="estado-badge">
+        {/* Status badge */}
+        {esFinalizado && (
+          <div className="match-status">
             {resultado === "empate" ? "Empate" :
              resultado === "local"  ? `Ganó ${equipoLocal.nombre}` :
-                                      `Ganó ${equipoVisitante.nombre}`}
-          </p>
+                                       `Ganó ${equipoVisitante.nombre}`}
+          </div>
+        )}
+
+        {/* Button for pending matches */}
+        {!esFinalizado && (
+          <div className="match-acciones">
+            <button className="match-btn-guardar" onClick={handleGuardar}>
+              Guardar resultado
+            </button>
+          </div>
         )}
       </div>
 
