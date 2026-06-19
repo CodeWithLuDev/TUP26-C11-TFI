@@ -11,3 +11,91 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ─── DATOS GLOBALES ───────────────────────────────────────────────────────────
+
+model Team {
+  id          Int    @id @default(autoincrement())
+  name        String
+  code        String
+  flagEmoji   String @map("flag_emoji")
+  groupLetter String @map("group_letter")
+
+  players     Player[]
+  homeMatches Match[]  @relation("HomeTeam")
+  awayMatches Match[]  @relation("AwayTeam")
+}
+
+model Player {
+  id     Int    @id @default(autoincrement())
+  teamId Int    @map("team_id")
+  name   String
+  number Int
+
+  team       Team            @relation(fields: [teamId], references: [id])
+  goalEvents UserGoalEvent[]
+}
+
+model Match {
+  id             Int      @id @default(autoincrement())
+  round          String
+  homeTeamId     Int?     @map("home_team_id")
+  awayTeamId     Int?     @map("away_team_id")
+  groupLetter    String?  @map("group_letter")
+  slotKey        String?  @map("slot_key")
+  homeSource     String?  @map("home_source")
+  awaySource     String?  @map("away_source")
+  scheduledAtUtc DateTime @map("scheduled_at_utc")
+  stadium        String?
+
+  homeTeam    Team?           @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam    Team?           @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  userResults UserResult[]
+  goalEvents  UserGoalEvent[]
+}
+
+// ─── DATOS POR USUARIO ────────────────────────────────────────────────────────
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  results    UserResult[]
+  goalEvents UserGoalEvent[]
+}
+
+model UserResult {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  matchId       Int      @map("match_id")
+  homeGoals     Int      @map("home_goals")
+  awayGoals     Int      @map("away_goals")
+  extraTime     Int      @default(0) @map("extra_time")
+  penalties     Int      @default(0)
+  penaltyWinner String?  @map("penalty_winner")
+  confirmedAt   DateTime @default(now()) @map("confirmed_at")
+
+  user  User  @relation(fields: [userId], references: [id])
+  match Match @relation(fields: [matchId], references: [id])
+
+  @@unique([userId, matchId])
+}
+
+enum EventType {
+  goal
+  assist
+}
+
+model UserGoalEvent {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  matchId   Int       @map("match_id")
+  playerId  Int       @map("player_id")
+  eventType EventType @map("event_type")
+
+  user   User   @relation(fields: [userId], references: [id])
+  match  Match  @relation(fields: [matchId], references: [id])
+  player Player @relation(fields: [playerId], references: [id])
+}
