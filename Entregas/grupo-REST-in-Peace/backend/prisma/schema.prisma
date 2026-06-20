@@ -17,7 +17,7 @@ datasource db {
 model Team {
   id          Int    @id @default(autoincrement())
   name        String
-  code        String
+  code        String @unique
   flagEmoji   String @map("flag_emoji")
   groupLetter String @map("group_letter")
 
