@@ -34,6 +34,8 @@ model Player {
 
   team       Team            @relation(fields: [teamId], references: [id])
   goalEvents UserGoalEvent[]
+
+  @@unique([teamId, number])
 }
 
 model Match {
