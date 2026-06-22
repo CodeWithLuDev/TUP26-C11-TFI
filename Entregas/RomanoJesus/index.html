@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture Mundial 2026 — En Tiempo Real</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>⚽</text></svg>">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+  <header class="encabezado">
+    <div class="encabezado__titulo">
+      <h1>Fixture <span class="acento">Mundial</span> 2026</h1>
+    </div>
+    <div>
+      <span class="encabezado__subtitulo">México · Estados Unidos · Canadá — 11 jun al 19 jul</span>
+    </div>
+    <div class="encabezado__acciones">
+      <button id="boton-tema" class="boton-tema" title="Cambiar tema">☀️</button>
+      <button id="boton-reiniciar" class="boton-reiniciar">↺ Reiniciar torneo</button>
+    </div>
+  </header>
+
+  <nav class="navegacion">
+    <button class="navegacion__item activo" data-vista="inicio">Inicio</button>
+    <button class="navegacion__item" data-vista="equipos">Equipos</button>
+    <button class="navegacion__item" data-vista="grupos">Grupos</button>
+    <button class="navegacion__item" data-vista="fixture">Fixture</button>
+    <button class="navegacion__item" data-vista="playoffs">Playoffs</button>
+    <button class="navegacion__item" data-vista="estadisticas">Goleadores</button>
+    <button class="navegacion__item" data-vista="jugadores">Jugadores</button>
+    <button class="navegacion__item" data-vista="destacados">Destacados</button>
+    <button class="navegacion__item" data-vista="campeones">Historial</button>
+    <button class="navegacion__item" data-vista="donde-ver">Ver Mundial</button>
+  </nav>
+
+  <main class="contenido">
+    <section id="vista-inicio" class="vista activa"></section>
+    <section id="vista-equipos" class="vista"></section>
+    <section id="vista-grupos" class="vista"></section>
+    <section id="vista-fixture" class="vista"></section>
+    <section id="vista-playoffs" class="vista"></section>
+    <section id="vista-estadisticas" class="vista"></section>
+    <section id="vista-jugadores" class="vista"></section>
+    <section id="vista-destacados" class="vista"></section>
+    <section id="vista-campeones" class="vista"></section>
+    <section id="vista-donde-ver" class="vista"></section>
+  </main>
+
+  <!-- Datos -->
+  <script src="src/data/equipos.js"></script>
+  <script src="src/data/partidos.js"></script>
+  <script src="src/data/campeones.js"></script>
+  <script src="src/data/historial.js"></script>
+  <script src="src/data/jugadores.js"></script>
+
+  <!-- Lógica de negocio -->
+  <script src="src/logic/tiempo.js"></script>
+  <script src="src/logic/posiciones.js"></script>
+  <script src="src/logic/playoffs.js"></script>
+  <script src="src/logic/estadisticas.js"></script>
+  <script src="src/logic/almacenamiento.js"></script>
+  <script src="src/logic/simulacion.js"></script>
+
+  <!-- Interfaz -->
+  <script src="src/ui/equipos.js"></script>
+  <script src="src/ui/grupos.js"></script>
+  <script src="src/ui/fixture.js"></script>
+  <script src="src/ui/bracket.js"></script>
+  <script src="src/ui/estadisticas.js"></script>
+  <script src="src/ui/jugadores.js"></script>
+  <script src="src/ui/campeones.js"></script>
+  <script src="src/ui/donde-ver.js"></script>
+  <script src="src/ui/inicio.js"></script>
+
+  <!-- Ensamblado general -->
+  <script src="src/main.js"></script>
+</body>
+</html>
