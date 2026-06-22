@@ -128,6 +128,46 @@ async function seedMatches() {
   console.log(count > 0 ? `✓ ${count} partidos insertados.` : "Seed omitido: partidos ya existentes.");
 }
 
+// ─── Knockout Matches ─────────────────────────────────────────────────────────
+
+async function seedKnockoutMatches() {
+  const knockoutMatches = [
+    // ── Octavos de Final (R16) ─────────────────────────────────────────────────
+    { slotKey: "R16-1", round: "R16", homeSource: "Winner Group A", awaySource: "Runner-up Group B", utc: "2022-12-03T15:00:00Z", stadium: "Khalifa International Stadium" },
+    { slotKey: "R16-2", round: "R16", homeSource: "Winner Group C", awaySource: "Runner-up Group D", utc: "2022-12-03T19:00:00Z", stadium: "Ahmad Bin Ali Stadium" },
+    { slotKey: "R16-3", round: "R16", homeSource: "Winner Group D", awaySource: "Runner-up Group C", utc: "2022-12-04T15:00:00Z", stadium: "Al Thumama Stadium" },
+    { slotKey: "R16-4", round: "R16", homeSource: "Winner Group B", awaySource: "Runner-up Group A", utc: "2022-12-04T19:00:00Z", stadium: "Al Bayt Stadium" },
+    { slotKey: "R16-5", round: "R16", homeSource: "Winner Group E", awaySource: "Runner-up Group F", utc: "2022-12-05T15:00:00Z", stadium: "Al Janoub Stadium" },
+    { slotKey: "R16-6", round: "R16", homeSource: "Winner Group G", awaySource: "Runner-up Group H", utc: "2022-12-05T19:00:00Z", stadium: "Education City Stadium" },
+    { slotKey: "R16-7", round: "R16", homeSource: "Winner Group F", awaySource: "Runner-up Group E", utc: "2022-12-06T15:00:00Z", stadium: "Al Bayt Stadium" },
+    { slotKey: "R16-8", round: "R16", homeSource: "Winner Group H", awaySource: "Runner-up Group G", utc: "2022-12-06T19:00:00Z", stadium: "Lusail Stadium" },
+    // ── Cuartos de Final (QF) ──────────────────────────────────────────────────
+    { slotKey: "QF-1", round: "QF", homeSource: "Winner R16-1", awaySource: "Winner R16-2", utc: "2022-12-09T15:00:00Z", stadium: "Al Thumama Stadium" },
+    { slotKey: "QF-2", round: "QF", homeSource: "Winner R16-5", awaySource: "Winner R16-6", utc: "2022-12-09T19:00:00Z", stadium: "Lusail Stadium" },
+    { slotKey: "QF-3", round: "QF", homeSource: "Winner R16-3", awaySource: "Winner R16-4", utc: "2022-12-10T15:00:00Z", stadium: "Al Bayt Stadium" },
+    { slotKey: "QF-4", round: "QF", homeSource: "Winner R16-7", awaySource: "Winner R16-8", utc: "2022-12-10T19:00:00Z", stadium: "Education City Stadium" },
+    // ── Semifinales (SF) ───────────────────────────────────────────────────────
+    { slotKey: "SF-1", round: "SF", homeSource: "Winner QF-1", awaySource: "Winner QF-2", utc: "2022-12-13T19:00:00Z", stadium: "Lusail Stadium" },
+    { slotKey: "SF-2", round: "SF", homeSource: "Winner QF-3", awaySource: "Winner QF-4", utc: "2022-12-14T19:00:00Z", stadium: "Al Bayt Stadium" },
+    // ── Tercer Puesto ─────────────────────────────────────────────────────────
+    { slotKey: "3RD",  round: "3rd",   homeSource: "Loser SF-1",   awaySource: "Loser SF-2",   utc: "2022-12-17T15:00:00Z", stadium: "Khalifa International Stadium" },
+    // ── Final ─────────────────────────────────────────────────────────────────
+    { slotKey: "FINAL", round: "final", homeSource: "Winner SF-1", awaySource: "Winner SF-2", utc: "2022-12-18T15:00:00Z", stadium: "Lusail Stadium" },
+  ];
+
+  const data = knockoutMatches.map((m) => ({
+    round: m.round,
+    slotKey: m.slotKey,
+    homeSource: m.homeSource,
+    awaySource: m.awaySource,
+    scheduledAtUtc: new Date(m.utc),
+    stadium: m.stadium,
+  }));
+
+  const { count } = await prisma.match.createMany({ data, skipDuplicates: true });
+  console.log(count > 0 ? `✓ ${count} partidos de knockout insertados.` : "Seed omitido: partidos de knockout ya existentes.");
+}
+
 // ─── Players data ────────────────────────────────────────────────────────────
 
 const players: { teamCode: string; number: number; name: string }[] = [
@@ -1017,6 +1057,7 @@ async function seedPlayers() {
 async function main() {
   await seedTeams();
   await seedMatches();
+  await seedKnockoutMatches();
   await seedPlayers();
 }
 

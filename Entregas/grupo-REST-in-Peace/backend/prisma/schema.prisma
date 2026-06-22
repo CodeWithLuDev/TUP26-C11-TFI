@@ -44,7 +44,7 @@ model Match {
   homeTeamId     Int?     @map("home_team_id")
   awayTeamId     Int?     @map("away_team_id")
   groupLetter    String?  @map("group_letter")
-  slotKey        String?  @map("slot_key")
+  slotKey        String?  @unique @map("slot_key")
   homeSource     String?  @map("home_source")
   awaySource     String?  @map("away_source")
   scheduledAtUtc DateTime @map("scheduled_at_utc")
