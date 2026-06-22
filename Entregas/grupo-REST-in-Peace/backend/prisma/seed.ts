@@ -58,8 +58,74 @@ async function seedTeams() {
 // ─── Matches ──────────────────────────────────────────────────────────────────
 
 async function seedMatches() {
-  // TODO: insertar los 64 partidos del Mundial Qatar 2022
-  console.log("seedMatches: pendiente de implementar.");
+  const teamRows = await prisma.team.findMany({ select: { id: true, code: true } });
+  const codeToId = Object.fromEntries(teamRows.map((t) => [t.code, t.id]));
+
+  const matches = [
+    // ── Fecha 1 ────────────────────────────────────────────────────────────────
+    { home: "QAT", away: "ECU", group: "A", utc: "2022-11-20T16:00:00Z", stadium: "Al Bayt Stadium" },
+    { home: "ENG", away: "IRN", group: "B", utc: "2022-11-21T13:00:00Z", stadium: "Khalifa International Stadium" },
+    { home: "SEN", away: "NED", group: "A", utc: "2022-11-21T16:00:00Z", stadium: "Al Thumama Stadium" },
+    { home: "USA", away: "WAL", group: "B", utc: "2022-11-21T19:00:00Z", stadium: "Ahmad Bin Ali Stadium" },
+    { home: "ARG", away: "KSA", group: "C", utc: "2022-11-22T10:00:00Z", stadium: "Lusail Stadium" },
+    { home: "DEN", away: "TUN", group: "D", utc: "2022-11-22T13:00:00Z", stadium: "Education City Stadium" },
+    { home: "MEX", away: "POL", group: "C", utc: "2022-11-22T16:00:00Z", stadium: "Stadium 974" },
+    { home: "FRA", away: "AUS", group: "D", utc: "2022-11-22T19:00:00Z", stadium: "Al Janoub Stadium" },
+    { home: "MAR", away: "CRO", group: "F", utc: "2022-11-23T10:00:00Z", stadium: "Al Bayt Stadium" },
+    { home: "GER", away: "JPN", group: "E", utc: "2022-11-23T13:00:00Z", stadium: "Khalifa International Stadium" },
+    { home: "ESP", away: "CRC", group: "E", utc: "2022-11-23T16:00:00Z", stadium: "Al Thumama Stadium" },
+    { home: "BEL", away: "CAN", group: "F", utc: "2022-11-23T19:00:00Z", stadium: "Ahmad Bin Ali Stadium" },
+    { home: "SUI", away: "CMR", group: "G", utc: "2022-11-24T10:00:00Z", stadium: "Al Janoub Stadium" },
+    { home: "URU", away: "KOR", group: "H", utc: "2022-11-24T13:00:00Z", stadium: "Education City Stadium" },
+    { home: "POR", away: "GHA", group: "H", utc: "2022-11-24T16:00:00Z", stadium: "Stadium 974" },
+    { home: "BRA", away: "SRB", group: "G", utc: "2022-11-24T19:00:00Z", stadium: "Lusail Stadium" },
+    // ── Fecha 2 ────────────────────────────────────────────────────────────────
+    { home: "WAL", away: "IRN", group: "B", utc: "2022-11-25T10:00:00Z", stadium: "Ahmad Bin Ali Stadium" },
+    { home: "QAT", away: "SEN", group: "A", utc: "2022-11-25T13:00:00Z", stadium: "Al Thumama Stadium" },
+    { home: "NED", away: "ECU", group: "A", utc: "2022-11-25T16:00:00Z", stadium: "Khalifa International Stadium" },
+    { home: "ENG", away: "USA", group: "B", utc: "2022-11-25T19:00:00Z", stadium: "Al Bayt Stadium" },
+    { home: "TUN", away: "AUS", group: "D", utc: "2022-11-26T10:00:00Z", stadium: "Al Janoub Stadium" },
+    { home: "POL", away: "KSA", group: "C", utc: "2022-11-26T13:00:00Z", stadium: "Education City Stadium" },
+    { home: "FRA", away: "DEN", group: "D", utc: "2022-11-26T16:00:00Z", stadium: "Stadium 974" },
+    { home: "ARG", away: "MEX", group: "C", utc: "2022-11-26T19:00:00Z", stadium: "Lusail Stadium" },
+    { home: "JPN", away: "CRC", group: "E", utc: "2022-11-27T10:00:00Z", stadium: "Ahmad Bin Ali Stadium" },
+    { home: "BEL", away: "MAR", group: "F", utc: "2022-11-27T13:00:00Z", stadium: "Al Thumama Stadium" },
+    { home: "CRO", away: "CAN", group: "F", utc: "2022-11-27T16:00:00Z", stadium: "Khalifa International Stadium" },
+    { home: "ESP", away: "GER", group: "E", utc: "2022-11-27T19:00:00Z", stadium: "Al Bayt Stadium" },
+    { home: "CMR", away: "SRB", group: "G", utc: "2022-11-28T10:00:00Z", stadium: "Al Janoub Stadium" },
+    { home: "KOR", away: "GHA", group: "H", utc: "2022-11-28T13:00:00Z", stadium: "Education City Stadium" },
+    { home: "BRA", away: "SUI", group: "G", utc: "2022-11-28T16:00:00Z", stadium: "Stadium 974" },
+    { home: "POR", away: "URU", group: "H", utc: "2022-11-28T19:00:00Z", stadium: "Lusail Stadium" },
+    // ── Fecha 3 (simultáneos por grupo) ───────────────────────────────────────
+    { home: "NED", away: "QAT", group: "A", utc: "2022-11-29T15:00:00Z", stadium: "Al Bayt Stadium" },
+    { home: "ECU", away: "SEN", group: "A", utc: "2022-11-29T15:00:00Z", stadium: "Khalifa International Stadium" },
+    { home: "WAL", away: "ENG", group: "B", utc: "2022-11-29T19:00:00Z", stadium: "Ahmad Bin Ali Stadium" },
+    { home: "IRN", away: "USA", group: "B", utc: "2022-11-29T19:00:00Z", stadium: "Al Thumama Stadium" },
+    { home: "AUS", away: "DEN", group: "D", utc: "2022-11-30T15:00:00Z", stadium: "Al Janoub Stadium" },
+    { home: "TUN", away: "FRA", group: "D", utc: "2022-11-30T15:00:00Z", stadium: "Education City Stadium" },
+    { home: "POL", away: "ARG", group: "C", utc: "2022-11-30T19:00:00Z", stadium: "Stadium 974" },
+    { home: "KSA", away: "MEX", group: "C", utc: "2022-11-30T19:00:00Z", stadium: "Lusail Stadium" },
+    { home: "CRO", away: "BEL", group: "F", utc: "2022-12-01T15:00:00Z", stadium: "Ahmad Bin Ali Stadium" },
+    { home: "CAN", away: "MAR", group: "F", utc: "2022-12-01T15:00:00Z", stadium: "Al Thumama Stadium" },
+    { home: "JPN", away: "ESP", group: "E", utc: "2022-12-01T19:00:00Z", stadium: "Khalifa International Stadium" },
+    { home: "CRC", away: "GER", group: "E", utc: "2022-12-01T19:00:00Z", stadium: "Al Bayt Stadium" },
+    { home: "KOR", away: "POR", group: "H", utc: "2022-12-02T15:00:00Z", stadium: "Education City Stadium" },
+    { home: "GHA", away: "URU", group: "H", utc: "2022-12-02T15:00:00Z", stadium: "Al Janoub Stadium" },
+    { home: "CMR", away: "BRA", group: "G", utc: "2022-12-02T19:00:00Z", stadium: "Lusail Stadium" },
+    { home: "SRB", away: "SUI", group: "G", utc: "2022-12-02T19:00:00Z", stadium: "Stadium 974" },
+  ];
+
+  const data = matches.map((m) => ({
+    round: "group",
+    homeTeamId: codeToId[m.home],
+    awayTeamId: codeToId[m.away],
+    groupLetter: m.group,
+    scheduledAtUtc: new Date(m.utc),
+    stadium: m.stadium,
+  }));
+
+  const { count } = await prisma.match.createMany({ data, skipDuplicates: true });
+  console.log(count > 0 ? `✓ ${count} partidos insertados.` : "Seed omitido: partidos ya existentes.");
 }
 
 // ─── Players data ────────────────────────────────────────────────────────────
