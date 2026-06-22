@@ -4,6 +4,7 @@ import express from "express";
 import "dotenv/config";
 import authRouter from "./routes/auth";
 import tourneyRouter from "./routes/tourney";
+import meRouter from "./routes/me";
 import { requireAuth } from "./middleware/requireAuth";
 
 const app = express();
@@ -19,10 +20,6 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api", tourneyRouter);
 
-const meRouter = express.Router();
-meRouter.get("/", (req, res) => {
-  res.json({ user: req.user });
-});
 app.use("/api/me", requireAuth, meRouter);
 
 app.listen(PORT, () => {
