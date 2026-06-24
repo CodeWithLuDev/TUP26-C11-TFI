@@ -1,4 +1,5 @@
 import type { StandingsResponse, StandingRow } from '../types/api'
+import { FlagBadge } from './ui/FlagBadge'
 import { EmptyState, SectionHeader } from './ui/States'
 
 const columns: Array<{ key: keyof StandingRow; label: string; align?: 'left' | 'right' }> = [
@@ -29,19 +30,19 @@ export function StandingsSection({ standings }: { standings: StandingsResponse |
       <SectionHeader
         eyebrow="Fase de grupos"
         title="Tablas de posiciones"
-        description="El backend aplica puntos, diferencia de gol, goles a favor y enfrentamiento directo; el frontend solo presenta el orden calculado."
+        description="Segui el recorrido de cada seleccion en el torneo: sus puntos, goles y todo lo que define su camino hacia la clasificacion."
       />
 
       <div className="grid gap-6 xl:grid-cols-2">
         {Object.entries(groups).map(([group, rows]) => (
           <article
             key={group}
-            className="overflow-hidden rounded-3xl border border-white/10 bg-white/10 shadow-card backdrop-blur"
+            className="sports-card overflow-hidden rounded-3xl"
           >
-            <header className="flex items-center justify-between border-b border-white/10 bg-slate-950/35 px-5 py-4">
+            <header className="relative z-10 flex items-center justify-between border-b border-white/10 bg-pitch-950/35 px-5 py-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-gold">Grupo</p>
-                <h3 className="text-3xl font-black text-white">{group}</h3>
+                <h3 className="font-display text-4xl font-black text-white">{group}</h3>
               </div>
               <p className="text-xs text-emerald-100/70">Orden FIFA</p>
             </header>
@@ -68,7 +69,12 @@ export function StandingsSection({ standings }: { standings: StandingsResponse |
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">{row.flag_emoji}</span>
+                          <FlagBadge
+                            code={row.code}
+                            emoji={row.flag_emoji}
+                            label={row.name}
+                            className="h-9 w-9 rounded-xl"
+                          />
                           <div>
                             <p className="font-black text-white">{row.name}</p>
                             <p className="text-xs font-bold text-emerald-100/60">{row.code}</p>

@@ -14,10 +14,13 @@ export async function registerHandler(req: Request, res: Response) {
     const result = await authService.register(username, password);
     res.status(201).json(result);
   } catch (err) {
+    console.log("REGISTER ERROR:", err); // 👈 AGREGAR ESTO
+  
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       res.status(409).json({ error: "El username ya está registrado" });
       return;
     }
+  
     res.status(500).json({ error: "Error interno del servidor" });
   }
 }

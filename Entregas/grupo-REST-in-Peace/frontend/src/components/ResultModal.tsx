@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { ApiError, api } from '../api/client'
 import type { FixtureMatch, Player, SubmitResultPayload } from '../types/api'
 import { formatMatchDate, roundLabels } from '../utils/format'
+import { FlagBadge } from './ui/FlagBadge'
 
 type ResultModalProps = {
   match: FixtureMatch
@@ -30,6 +32,15 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
   const isDraw = homeGoals === awayGoals
   const needsPenaltyWinner = isKnockout && isDraw
   const totalGoals = homeGoals + awayGoals
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [])
 
   useEffect(() => {
     if (!match.home_team || !match.away_team) return
@@ -113,9 +124,9 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 px-4 py-6 backdrop-blur">
-      <div className="scrollbar-soft max-h-full w-full max-w-3xl overflow-y-auto rounded-[2rem] border border-white/15 bg-pitch-950 p-6 text-white shadow-card">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-slate-950/80 px-4 py-4 backdrop-blur sm:py-6">
+      <div className="scrollbar-soft my-0 max-h-[calc(100vh-2rem)] w-full max-w-3xl overflow-y-auto rounded-[2rem] border border-white/15 bg-pitch-950 p-6 text-white shadow-card sm:max-h-[calc(100vh-3rem)]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.25em] text-gold">
@@ -150,6 +161,7 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
             <TeamScore
               label={match.home_team?.name ?? 'Local'}
               flag={match.home_team?.flag_emoji}
+              code={match.home_team?.code}
               value={homeGoals}
               disabled={Boolean(match.user_result)}
               onChange={setHomeGoals}
@@ -158,6 +170,7 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
             <TeamScore
               label={match.away_team?.name ?? 'Visitante'}
               flag={match.away_team?.flag_emoji}
+              code={match.away_team?.code}
               value={awayGoals}
               disabled={Boolean(match.user_result)}
               onChange={setAwayGoals}
@@ -254,28 +267,31 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
 function TeamScore({
   label,
   flag,
+  code,
   value,
   disabled,
   onChange,
 }: {
   label: string
   flag?: string
+  code?: string
   value: number
   disabled: boolean
   onChange: (value: number) => void
 }) {
   return (
     <label className="block rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
-      <span className="block truncate text-sm font-bold text-emerald-50/75">
-        {flag ? `${flag} ` : ''}
-        {label}
+      <span className="flex items-center justify-center gap-2 text-sm font-bold text-emerald-50/75">
+        <FlagBadge code={code} emoji={flag} label={label} className="h-8 w-8 rounded-xl" />
+        <span className="truncate">{label}</span>
       </span>
       <input
         type="number"

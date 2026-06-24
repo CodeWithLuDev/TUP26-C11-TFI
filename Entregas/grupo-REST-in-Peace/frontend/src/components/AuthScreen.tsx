@@ -36,36 +36,28 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (session: Ses
   const isLogin = mode === 'login'
 
   return (
-    <main className="field-lines min-h-screen px-4 py-8 text-white sm:px-6 lg:px-8">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-        <section>
-          <div className="inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.3em] text-emerald-100">
-            Mundial en tiempo real
-          </div>
-          <h1 className="mt-6 max-w-3xl text-5xl font-black leading-tight tracking-tight sm:text-6xl">
-            Fixture, posiciones y estadisticas con energia de estadio.
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-emerald-50/75">
-            Gestiona resultados, goleadores, asistencias, tablas y llaves de eliminacion usando
-            exclusivamente la API ya implementada.
-          </p>
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            {['32 equipos', '64 partidos', 'JWT + datos por usuario'].map((item) => (
-              <div key={item} className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                <p className="text-sm font-bold text-emerald-100">{item}</p>
-              </div>
-            ))}
+    <main className="auth-login-screen flex min-h-screen items-center px-4 py-4 text-white sm:px-6 lg:px-8">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[1fr_0.9fr] lg:gap-12">
+        <section className="flex items-center justify-center px-3 py-4 text-center lg:justify-start">
+          <div className="relative flex w-full max-w-lg justify-center lg:justify-start">
+            <img
+              src="/qatar-2022-logo-transparent.png"
+              alt="FIFA World Cup Qatar 2022"
+              className="auth-logo-hero h-auto w-full max-w-[14rem] object-contain sm:max-w-[17rem] lg:max-w-[22rem]"
+            />
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/15 bg-white/10 p-6 shadow-card backdrop-blur-xl sm:p-8">
-          <div className="mb-8">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-gold">
+        <section className="qatar-panel mx-auto w-full max-w-md rounded-[1.75rem] p-5 shadow-[0_28px_90px_rgba(19,3,9,0.48)] sm:p-7">
+          <div className="mb-6 text-left">
+            <p className="text-xs font-black uppercase tracking-[0.28em] text-gold">
               {isLogin ? 'Ingresar' : 'Crear cuenta'}
             </p>
-            <h2 className="mt-2 text-3xl font-black">{isLogin ? 'Bienvenido' : 'Nuevo hincha'}</h2>
+            <h2 className="mt-2 font-display text-4xl font-black uppercase leading-none sm:text-5xl">
+              {isLogin ? 'Bienvenido' : 'Nuevo hincha'}
+            </h2>
             <p className="mt-2 text-sm text-emerald-50/70">
-              Tus resultados y estadisticas se guardan por usuario en el backend.
+              Accede y segui tu progreso donde lo dejaste.
             </p>
           </div>
 
@@ -77,7 +69,7 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (session: Ses
                 onChange={(event) => setUsername(event.target.value)}
                 minLength={3}
                 required
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-gold"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-pitch-950/60 px-4 py-3.5 text-white outline-none transition placeholder:text-white/30 focus:border-gold focus:bg-pitch-950/80"
                 placeholder="hincha01"
               />
             </label>
@@ -89,7 +81,7 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (session: Ses
                 minLength={6}
                 required
                 type="password"
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-gold"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-pitch-950/60 px-4 py-3.5 text-white outline-none transition placeholder:text-white/30 focus:border-gold focus:bg-pitch-950/80"
                 placeholder="••••••••"
               />
             </label>
@@ -103,7 +95,7 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (session: Ses
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-2xl bg-gold px-5 py-3 font-black text-slate-950 transition hover:bg-yellow-300 disabled:opacity-60"
+              className="w-full rounded-2xl bg-gold px-5 py-3.5 font-black text-pitch-950 shadow-lg shadow-gold/10 transition hover:-translate-y-0.5 hover:bg-emerald-50 disabled:opacity-60"
             >
               {isSubmitting ? 'Conectando...' : isLogin ? 'Entrar al torneo' : 'Crear usuario'}
             </button>
@@ -115,7 +107,7 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (session: Ses
               setMode(isLogin ? 'register' : 'login')
               setError(null)
             }}
-            className="mt-5 w-full rounded-2xl border border-white/10 px-5 py-3 text-sm font-bold text-emerald-50 transition hover:bg-white/10"
+            className="mt-4 w-full rounded-2xl border border-gold/20 px-5 py-3.5 text-sm font-bold text-emerald-50 transition hover:-translate-y-0.5 hover:bg-white/10"
           >
             {isLogin ? 'No tengo cuenta, registrarme' : 'Ya tengo cuenta, iniciar sesion'}
           </button>

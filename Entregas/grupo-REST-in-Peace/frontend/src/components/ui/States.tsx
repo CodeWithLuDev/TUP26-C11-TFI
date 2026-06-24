@@ -8,8 +8,8 @@ type EmptyStateProps = {
 
 export function LoadingState() {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/10 p-8 text-center shadow-card backdrop-blur">
-      <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-emerald-300/30 border-t-emerald-300" />
+    <div className="qatar-panel rounded-3xl p-8 text-center">
+      <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gold/30 border-t-gold" />
       <p className="font-semibold text-white">Cargando datos del torneo...</p>
       <p className="mt-1 text-sm text-emerald-100/70">Consultando el backend existente.</p>
     </div>
@@ -37,7 +37,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 
 export function EmptyState({ title, message, action }: EmptyStateProps) {
   return (
-    <div className="rounded-3xl border border-dashed border-white/20 bg-white/5 p-8 text-center">
+    <div className="rounded-3xl border border-dashed border-gold/25 bg-white/[0.06] p-8 text-center">
       <p className="text-4xl">⚽</p>
       <h3 className="mt-3 text-xl font-black text-white">{title}</h3>
       <p className="mx-auto mt-2 max-w-xl text-sm text-emerald-50/70">{message}</p>

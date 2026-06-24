@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import type { FixtureMatch, SubmitResultPayload } from '../types/api'
-import { cx, formatShortDate, getTimezoneLabel, roundLabels } from '../utils/format'
+import { cx, formatShortDate, roundLabels } from '../utils/format'
 import { ResultModal } from './ResultModal'
+import { FlagBadge } from './ui/FlagBadge'
 import { EmptyState, SectionHeader } from './ui/States'
 
 type FixtureSectionProps = {
@@ -72,10 +73,10 @@ export function FixtureSection({
       <SectionHeader
         eyebrow="Carga de resultados"
         title="Fixture interactivo"
-        description={`Partidos ordenados cronologicamente. Las fechas se muestran en tu zona local (${getTimezoneLabel()}) a partir del horario UTC guardado en la base.`}
+        description="Partidos ordenados cronologicamente."
       />
 
-      <div className="mb-6 grid gap-3 rounded-3xl border border-white/10 bg-white/10 p-4 backdrop-blur lg:grid-cols-3">
+      <div className="qatar-panel mb-6 grid gap-3 rounded-3xl p-4 lg:grid-cols-3">
         <FilterSelect value={roundFilter} onChange={setRoundFilter} options={roundOptions} />
         <FilterSelect
           value={groupFilter}
@@ -174,8 +175,8 @@ function MatchCard({
       : null
 
   return (
-    <article className="rounded-3xl border border-white/10 bg-white/10 p-5 shadow-card backdrop-blur">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <article className="sports-card rounded-3xl p-5">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.25em] text-gold">
             {roundLabels[match.round]}
@@ -199,14 +200,14 @@ function MatchCard({
         </span>
       </div>
 
-      <div className="mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+      <div className="relative z-10 mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
         <TeamSide
           name={match.home_team?.name ?? match.home_source ?? 'Por definir'}
           flag={match.home_team?.flag_emoji}
           code={match.home_team?.code}
           isWinner={winnerCode === match.home_team?.code}
         />
-        <div className="rounded-2xl bg-slate-950/60 px-4 py-3 text-center">
+        <div className="rounded-2xl border border-gold/20 bg-pitch-950/60 px-4 py-3 text-center shadow-inner">
           {result ? (
             <p className="text-3xl font-black text-white">
               {result.home_goals}-{result.away_goals}
@@ -242,12 +243,12 @@ function MatchCard({
         </div>
       ) : null}
 
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+      <div className="relative z-10 mt-5 flex flex-col gap-2 sm:flex-row">
         <button
           type="button"
           onClick={onOpen}
           disabled={!isReady}
-          className="flex-1 rounded-2xl bg-gold px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-yellow-300 disabled:opacity-50"
+          className="flex-1 rounded-2xl bg-gold px-4 py-3 text-sm font-black text-pitch-950 transition hover:-translate-y-0.5 hover:bg-emerald-50 disabled:opacity-50"
         >
           {result ? 'Ver resultado' : 'Cargar resultado'}
         </button>
@@ -280,14 +281,14 @@ function TeamSide({
   return (
     <div
       className={cx(
-        'min-w-0 rounded-2xl border p-3',
+        'min-w-0 rounded-2xl border p-3 transition duration-200',
         isWinner ? 'border-gold bg-gold/10' : 'border-white/10 bg-white/5',
       )}
     >
-      <p className="truncate text-sm font-black text-white">
-        {flag ? `${flag} ` : ''}
-        {name}
-      </p>
+      <div className="flex items-center gap-2">
+        <FlagBadge code={code} emoji={flag} label={name} className="h-8 w-8 rounded-xl" />
+        <p className="truncate text-sm font-black text-white">{name}</p>
+      </div>
       <p className="mt-1 text-xs font-bold text-emerald-100/60">{code ?? 'TBD'}</p>
     </div>
   )
