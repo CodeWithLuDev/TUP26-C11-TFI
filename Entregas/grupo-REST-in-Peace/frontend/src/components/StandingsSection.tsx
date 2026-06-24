@@ -1,0 +1,96 @@
+import type { StandingsResponse, StandingRow } from '../types/api'
+import { EmptyState, SectionHeader } from './ui/States'
+
+const columns: Array<{ key: keyof StandingRow; label: string; align?: 'left' | 'right' }> = [
+  { key: 'pj', label: 'PJ' },
+  { key: 'pg', label: 'PG' },
+  { key: 'pe', label: 'PE' },
+  { key: 'pp', label: 'PP' },
+  { key: 'gf', label: 'GF' },
+  { key: 'gc', label: 'GC' },
+  { key: 'dg', label: 'DG' },
+  { key: 'pts', label: 'PTS' },
+]
+
+export function StandingsSection({ standings }: { standings: StandingsResponse | null }) {
+  const groups = standings?.groups ?? {}
+
+  if (Object.keys(groups).length === 0) {
+    return (
+      <EmptyState
+        title="No hay tablas disponibles"
+        message="Las posiciones se calculan desde el backend segun los resultados cargados por el usuario."
+      />
+    )
+  }
+
+  return (
+    <section>
+      <SectionHeader
+        eyebrow="Fase de grupos"
+        title="Tablas de posiciones"
+        description="El backend aplica puntos, diferencia de gol, goles a favor y enfrentamiento directo; el frontend solo presenta el orden calculado."
+      />
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        {Object.entries(groups).map(([group, rows]) => (
+          <article
+            key={group}
+            className="overflow-hidden rounded-3xl border border-white/10 bg-white/10 shadow-card backdrop-blur"
+          >
+            <header className="flex items-center justify-between border-b border-white/10 bg-slate-950/35 px-5 py-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-gold">Grupo</p>
+                <h3 className="text-3xl font-black text-white">{group}</h3>
+              </div>
+              <p className="text-xs text-emerald-100/70">Orden FIFA</p>
+            </header>
+            <div className="scrollbar-soft overflow-x-auto">
+              <table className="w-full min-w-[680px] text-left">
+                <thead className="bg-emerald-300/10 text-xs uppercase tracking-[0.2em] text-emerald-100/70">
+                  <tr>
+                    <th className="px-4 py-3">#</th>
+                    <th className="px-4 py-3">Equipo</th>
+                    {columns.map((column) => (
+                      <th key={column.key} className="px-3 py-3 text-right">
+                        {column.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {rows.map((row) => (
+                    <tr key={row.team_id} className="transition hover:bg-white/5">
+                      <td className="px-4 py-4">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm font-black text-white">
+                          {row.position}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{row.flag_emoji}</span>
+                          <div>
+                            <p className="font-black text-white">{row.name}</p>
+                            <p className="text-xs font-bold text-emerald-100/60">{row.code}</p>
+                          </div>
+                        </div>
+                      </td>
+                      {columns.map((column) => (
+                        <td
+                          key={column.key}
+                          className="px-3 py-4 text-right text-sm font-bold text-emerald-50/80"
+                        >
+                          {row[column.key]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
