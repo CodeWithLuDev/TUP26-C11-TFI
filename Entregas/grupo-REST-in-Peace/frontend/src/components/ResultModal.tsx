@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { ApiError, api } from '../api/client'
@@ -14,43 +14,63 @@ type ResultModalProps = {
 }
 
 export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProps) {
-  const [homeGoals, setHomeGoals] = useState(match.user_result?.home_goals ?? 0)
-  const [awayGoals, setAwayGoals] = useState(match.user_result?.away_goals ?? 0)
+  const [homeGoals, setHomeGoals] = useState<number | null>(match.user_result?.home_goals ?? null)
+  const [awayGoals, setAwayGoals] = useState<number | null>(match.user_result?.away_goals ?? null)
   const [extraTime, setExtraTime] = useState(Boolean(match.user_result?.extra_time))
   const [penaltyWinner, setPenaltyWinner] = useState(match.user_result?.penalty_winner ?? '')
   const [homePlayers, setHomePlayers] = useState<Player[]>([])
   const [awayPlayers, setAwayPlayers] = useState<Player[]>([])
   const [homeScorers, setHomeScorers] = useState<number[]>([])
   const [awayScorers, setAwayScorers] = useState<number[]>([])
-  const [assisters, setAssisters] = useState<number[]>([])
+  const [homeAssisters, setHomeAssisters] = useState<number[]>([])
+  const [awayAssisters, setAwayAssisters] = useState<number[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoadingPlayers, setIsLoadingPlayers] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
+  const closeTimeouts = useRef<number[]>([])
 
-  const allPlayers = useMemo(() => [...homePlayers, ...awayPlayers], [awayPlayers, homePlayers])
   const isKnockout = match.round !== 'group'
-  const isDraw = homeGoals === awayGoals
+  const hasScores = homeGoals !== null && awayGoals !== null
+  const isDraw = hasScores && homeGoals === awayGoals
   const needsPenaltyWinner = isKnockout && isDraw
-  const totalGoals = homeGoals + awayGoals
+  const totalGoals = (homeGoals ?? 0) + (awayGoals ?? 0)
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow
+    const scheduledCloseTimeouts = closeTimeouts.current
     document.body.style.overflow = 'hidden'
 
     return () => {
       document.body.style.overflow = originalOverflow
+      scheduledCloseTimeouts.forEach((timeoutId) => window.clearTimeout(timeoutId))
     }
   }, [])
+
+  function schedule(callback: () => void, delay: number) {
+    const timeoutId = window.setTimeout(callback, delay)
+    closeTimeouts.current.push(timeoutId)
+  }
+
+  function closeWithAnimation() {
+    if (isClosing) return
+    setIsClosing(true)
+    schedule(onClose, 220)
+  }
 
   useEffect(() => {
     if (!match.home_team || !match.away_team) return
 
-    setIsLoadingPlayers(true)
-    setError(null)
-    void Promise.all([
-      api.players(token, match.home_team.id),
-      api.players(token, match.away_team.id),
-    ])
+    void Promise.resolve()
+      .then(() => {
+        setIsLoadingPlayers(true)
+        setError(null)
+        return Promise.all([
+          api.players(token, match.home_team!.id),
+          api.players(token, match.away_team!.id),
+        ])
+      })
       .then(([home, away]) => {
         setHomePlayers(home)
         setAwayPlayers(away)
@@ -61,17 +81,17 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
       .finally(() => setIsLoadingPlayers(false))
   }, [match.away_team, match.home_team, token])
 
-  useEffect(() => {
-    setHomeScorers((current) => resizeIds(current, homeGoals))
-  }, [homeGoals])
+  function handleHomeGoalsChange(value: number | null) {
+    setHomeGoals(value)
+    setHomeScorers((current) => resizeIds(current, value ?? 0))
+    setHomeAssisters((current) => resizeIds(current, value ?? 0))
+  }
 
-  useEffect(() => {
-    setAwayScorers((current) => resizeIds(current, awayGoals))
-  }, [awayGoals])
-
-  useEffect(() => {
-    setAssisters((current) => resizeIds(current, totalGoals))
-  }, [totalGoals])
+  function handleAwayGoalsChange(value: number | null) {
+    setAwayGoals(value)
+    setAwayScorers((current) => resizeIds(current, value ?? 0))
+    setAwayAssisters((current) => resizeIds(current, value ?? 0))
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -79,6 +99,11 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
 
     if (!match.home_team || !match.away_team) {
       setError('Los equipos del partido todavia no estan definidos.')
+      return
+    }
+
+    if (homeGoals === null || awayGoals === null) {
+      setError('Ingresa los goles de ambos equipos.')
       return
     }
 
@@ -95,7 +120,10 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
 
     const goalEvents: SubmitResultPayload['goal_events'] = [
       ...scorerIds.map((playerId) => ({ player_id: playerId, event_type: 'goal' as const })),
-      ...assisters
+      ...homeAssisters
+        .filter((playerId) => playerId > 0)
+        .map((playerId) => ({ player_id: playerId, event_type: 'assist' as const })),
+      ...awayAssisters
         .filter((playerId) => playerId > 0)
         .map((playerId) => ({ player_id: playerId, event_type: 'assist' as const })),
     ]
@@ -112,21 +140,25 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
     setIsSubmitting(true)
     try {
       await onSubmit(match.id, payload)
-      onClose()
+      setIsSaved(true)
+      schedule(closeWithAnimation, 520)
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message)
       } else {
         setError('No se pudo cargar el resultado')
       }
-    } finally {
       setIsSubmitting(false)
     }
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-slate-950/80 px-4 py-4 backdrop-blur sm:py-6">
-      <div className="scrollbar-soft my-0 max-h-[calc(100vh-2rem)] w-full max-w-3xl overflow-y-auto rounded-[2rem] border border-white/15 bg-pitch-950 p-6 text-white shadow-card sm:max-h-[calc(100vh-3rem)]">
+    <div
+      className={`result-modal-overlay fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-slate-950/80 px-4 py-4 backdrop-blur sm:py-6 ${
+        isClosing ? 'result-modal-closing' : ''
+      }`}
+    >
+      <div className="result-modal-card scrollbar-soft my-0 max-h-[calc(100vh-2rem)] w-full max-w-3xl overflow-y-auto rounded-[2rem] border border-white/15 bg-pitch-950 p-6 text-white shadow-card sm:max-h-[calc(100vh-3rem)]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.25em] text-gold">
@@ -142,7 +174,7 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={closeWithAnimation}
             className="rounded-full border border-white/10 px-3 py-1 text-sm font-bold text-emerald-50 hover:bg-white/10"
           >
             Cerrar
@@ -164,7 +196,7 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
               code={match.home_team?.code}
               value={homeGoals}
               disabled={Boolean(match.user_result)}
-              onChange={setHomeGoals}
+              onChange={handleHomeGoalsChange}
             />
             <span className="text-2xl font-black text-emerald-100/60">:</span>
             <TeamScore
@@ -173,7 +205,7 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
               code={match.away_team?.code}
               value={awayGoals}
               disabled={Boolean(match.user_result)}
-              onChange={setAwayGoals}
+              onChange={handleAwayGoalsChange}
             />
           </div>
 
@@ -201,13 +233,22 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
           ) : null}
 
           {!match.user_result && totalGoals > 0 ? (
-            <ScorerSelectors
-              title="Asistencias opcionales"
-              players={allPlayers}
-              values={assisters}
-              onChange={setAssisters}
-              optional
-            />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <ScorerSelectors
+                title={`Asistencias de ${match.home_team?.name ?? 'local'}`}
+                players={homePlayers}
+                values={homeAssisters}
+                onChange={setHomeAssisters}
+                optional
+              />
+              <ScorerSelectors
+                title={`Asistencias de ${match.away_team?.name ?? 'visitante'}`}
+                players={awayPlayers}
+                values={awayAssisters}
+                onChange={setAwayAssisters}
+                optional
+              />
+            </div>
           ) : null}
 
           {!match.user_result && isKnockout ? (
@@ -249,11 +290,18 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
             </div>
           ) : null}
 
+          {isSaved ? (
+            <div className="result-modal-success rounded-2xl border border-emerald-300/35 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-100">
+              Resultado confirmado. Actualizando el fixture...
+            </div>
+          ) : null}
+
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
-              onClick={onClose}
-              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-bold text-emerald-50 hover:bg-white/10"
+              onClick={closeWithAnimation}
+              disabled={isSubmitting}
+              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-bold text-emerald-50 hover:bg-white/10 disabled:opacity-60"
             >
               Cancelar
             </button>
@@ -262,7 +310,7 @@ export function ResultModal({ match, token, onClose, onSubmit }: ResultModalProp
               disabled={Boolean(match.user_result) || isSubmitting || isLoadingPlayers}
               className="rounded-2xl bg-gold px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-yellow-300 disabled:opacity-60"
             >
-              {isSubmitting ? 'Guardando...' : 'Confirmar resultado'}
+              {isSaved ? 'Confirmado' : isSubmitting ? 'Guardando...' : 'Confirmar resultado'}
             </button>
           </div>
         </form>
@@ -283,9 +331,9 @@ function TeamScore({
   label: string
   flag?: string
   code?: string
-  value: number
+  value: number | null
   disabled: boolean
-  onChange: (value: number) => void
+  onChange: (value: number | null) => void
 }) {
   return (
     <label className="block rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
@@ -296,10 +344,14 @@ function TeamScore({
       <input
         type="number"
         min={0}
-        value={value}
+        value={value ?? ''}
+        placeholder="-"
         disabled={disabled}
-        onChange={(event) => onChange(Math.max(0, Number(event.target.value)))}
-        className="score-input mt-3 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-center text-4xl font-black text-white outline-none focus:border-gold disabled:opacity-60"
+        onChange={(event) => {
+          const rawValue = event.target.value
+          onChange(rawValue === '' ? null : Math.max(0, Number(rawValue)))
+        }}
+        className="score-input mt-3 w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-center text-4xl font-black text-white outline-none placeholder:text-emerald-100/35 focus:border-gold disabled:opacity-60"
       />
     </label>
   )

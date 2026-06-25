@@ -1,5 +1,7 @@
 import { EventType } from "../../generated/prisma/client";
 import { prisma } from "../lib/prisma";
+import { buildKnockoutResolutions, toTeamShapeNullable } from "./playoffsCore";
+import { getGroupQualifiers, type TeamShape } from "./standingsService";
 
 export type GoalEventInput = {
   player_id: number;
@@ -24,6 +26,107 @@ export class ResultServiceError extends Error {
   }
 }
 
+type MatchTeamForResolution = {
+  id: number;
+  name: string;
+  code: string;
+  flagEmoji: string;
+} | null;
+
+type MatchForTeamResolution = {
+  id: number;
+  round: string;
+  homeTeam: MatchTeamForResolution;
+  awayTeam: MatchTeamForResolution;
+};
+
+type MatchDependency = {
+  id: number;
+  slotKey: string | null;
+  groupLetter: string | null;
+  homeSource: string | null;
+  awaySource: string | null;
+};
+
+async function resolveMatchTeams(
+  userId: number,
+  match: MatchForTeamResolution
+): Promise<{ homeTeam: TeamShape | null; awayTeam: TeamShape | null }> {
+  if (match.round === "group") {
+    return {
+      homeTeam: toTeamShapeNullable(match.homeTeam),
+      awayTeam: toTeamShapeNullable(match.awayTeam),
+    };
+  }
+
+  const [groupResults, knockoutMatches] = await Promise.all([
+    getGroupQualifiers(userId),
+    prisma.match.findMany({
+      where: { round: { not: "group" } },
+      include: {
+        homeTeam: true,
+        awayTeam: true,
+        userResults: { where: { userId } },
+      },
+    }),
+  ]);
+
+  return (
+    buildKnockoutResolutions(knockoutMatches, groupResults).get(match.id) ?? {
+      homeTeam: null,
+      awayTeam: null,
+    }
+  );
+}
+
+function sourceReferencesGroup(source: string | null, groupLetter: string) {
+  return source === `Winner Group ${groupLetter}` || source === `Runner-up Group ${groupLetter}`;
+}
+
+function sourceReferencesSlot(source: string | null, slotKey: string) {
+  return source === `Winner ${slotKey}` || source === `Loser ${slotKey}`;
+}
+
+function collectDownstreamMatchIds(
+  deletedMatch: MatchDependency & { round: string },
+  knockoutMatches: MatchDependency[]
+) {
+  const downstreamMatchIds = new Set<number>();
+  const affectedGroups = new Set<string>();
+  const affectedSlots = new Set<string>();
+
+  if (deletedMatch.round === "group" && deletedMatch.groupLetter) {
+    affectedGroups.add(deletedMatch.groupLetter);
+  } else if (deletedMatch.slotKey) {
+    affectedSlots.add(deletedMatch.slotKey);
+  }
+
+  let foundNewDependency = true;
+  while (foundNewDependency) {
+    foundNewDependency = false;
+
+    for (const match of knockoutMatches) {
+      if (match.id === deletedMatch.id || downstreamMatchIds.has(match.id)) continue;
+
+      const sources = [match.homeSource, match.awaySource];
+      const dependsOnGroup = [...affectedGroups].some((groupLetter) =>
+        sources.some((source) => sourceReferencesGroup(source, groupLetter))
+      );
+      const dependsOnSlot = [...affectedSlots].some((slotKey) =>
+        sources.some((source) => sourceReferencesSlot(source, slotKey))
+      );
+
+      if (!dependsOnGroup && !dependsOnSlot) continue;
+
+      downstreamMatchIds.add(match.id);
+      if (match.slotKey) affectedSlots.add(match.slotKey);
+      foundNewDependency = true;
+    }
+  }
+
+  return [...downstreamMatchIds];
+}
+
 export async function submitResult(
   userId: number,
   matchId: number,
@@ -42,7 +145,9 @@ export async function submitResult(
     throw new ResultServiceError("Partido no encontrado", "MATCH_NOT_FOUND");
   }
 
-  if (!match.homeTeamId || !match.awayTeamId || !match.homeTeam || !match.awayTeam) {
+  const { homeTeam, awayTeam } = await resolveMatchTeams(userId, match);
+
+  if (!homeTeam || !awayTeam) {
     throw new ResultServiceError(
       "Los equipos del partido aún no están definidos",
       "MATCH_NOT_READY"
@@ -71,7 +176,7 @@ export async function submitResult(
   }
 
   if (input.penalty_winner) {
-    const validCodes = [match.homeTeam.code, match.awayTeam.code];
+    const validCodes = [homeTeam.code, awayTeam.code];
     if (!validCodes.includes(input.penalty_winner)) {
       throw new ResultServiceError(
         "penalty_winner debe ser el código del equipo local o visitante",
@@ -94,7 +199,7 @@ export async function submitResult(
     throw new ResultServiceError("Uno o más jugadores no existen", "INVALID_GOAL_EVENTS");
   }
 
-  const teamIds = new Set([match.homeTeamId, match.awayTeamId]);
+  const teamIds = new Set([homeTeam.id, awayTeam.id]);
   for (const player of players) {
     if (!teamIds.has(player.teamId)) {
       throw new ResultServiceError(
@@ -107,13 +212,13 @@ export async function submitResult(
   const homeGoalsFromEvents = goalEvents.filter((e) => {
     if (e.event_type !== "goal") return false;
     const player = players.find((p) => p.id === e.player_id);
-    return player?.teamId === match.homeTeamId;
+    return player?.teamId === homeTeam.id;
   }).length;
 
   const awayGoalsFromEvents = goalEvents.filter((e) => {
     if (e.event_type !== "goal") return false;
     const player = players.find((p) => p.id === e.player_id);
-    return player?.teamId === match.awayTeamId;
+    return player?.teamId === awayTeam.id;
   }).length;
 
   if (homeGoalsFromEvents !== input.home_goals || awayGoalsFromEvents !== input.away_goals) {
@@ -174,16 +279,52 @@ export async function submitResult(
 export async function deleteResult(userId: number, matchId: number) {
   const existing = await prisma.userResult.findUnique({
     where: { userId_matchId: { userId, matchId } },
+    include: {
+      match: {
+        select: {
+          id: true,
+          round: true,
+          slotKey: true,
+          groupLetter: true,
+          homeSource: true,
+          awaySource: true,
+        },
+      },
+    },
   });
 
   if (!existing) {
     throw new ResultServiceError("No hay resultado cargado para este partido", "RESULT_NOT_FOUND");
   }
 
+  const knockoutMatches = await prisma.match.findMany({
+    where: { round: { not: "group" } },
+    select: {
+      id: true,
+      slotKey: true,
+      groupLetter: true,
+      homeSource: true,
+      awaySource: true,
+    },
+  });
+  const downstreamMatchIds = collectDownstreamMatchIds(existing.match, knockoutMatches);
+  const resultMatchIds = [matchId, ...downstreamMatchIds];
+  const downstreamResults = await prisma.userResult.findMany({
+    where: {
+      userId,
+      matchId: { in: downstreamMatchIds },
+    },
+    select: { matchId: true },
+  });
+
   await prisma.$transaction([
-    prisma.userGoalEvent.deleteMany({ where: { userId, matchId } }),
-    prisma.userResult.delete({ where: { userId_matchId: { userId, matchId } } }),
+    prisma.userGoalEvent.deleteMany({ where: { userId, matchId: { in: resultMatchIds } } }),
+    prisma.userResult.deleteMany({ where: { userId, matchId: { in: resultMatchIds } } }),
   ]);
 
-  return { match_id: matchId, deleted: true };
+  return {
+    match_id: matchId,
+    deleted: true,
+    cascade_deleted_match_ids: downstreamResults.map((result) => result.matchId),
+  };
 }

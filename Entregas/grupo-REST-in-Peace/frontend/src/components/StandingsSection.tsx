@@ -37,7 +37,7 @@ export function StandingsSection({ standings }: { standings: StandingsResponse |
         {Object.entries(groups).map(([group, rows]) => (
           <article
             key={group}
-            className="sports-card overflow-hidden rounded-3xl"
+            className="sports-card standings-card overflow-hidden rounded-3xl"
           >
             <header className="relative z-10 flex items-center justify-between border-b border-white/10 bg-pitch-950/35 px-5 py-4">
               <div>
@@ -47,13 +47,12 @@ export function StandingsSection({ standings }: { standings: StandingsResponse |
               <p className="text-xs text-emerald-100/70">Orden FIFA</p>
             </header>
             <div className="scrollbar-soft overflow-x-auto">
-              <table className="w-full min-w-[680px] text-left">
+              <table className="w-full min-w-[560px] table-fixed text-left">
                 <thead className="bg-emerald-300/10 text-xs uppercase tracking-[0.2em] text-emerald-100/70">
                   <tr>
-                    <th className="px-4 py-3">#</th>
-                    <th className="px-4 py-3">Equipo</th>
+                    <th className="w-[42%] px-4 py-3">Equipo</th>
                     {columns.map((column) => (
-                      <th key={column.key} className="px-3 py-3 text-right">
+                      <th key={column.key} className="px-1.5 py-3 text-right sm:px-2">
                         {column.label}
                       </th>
                     ))}
@@ -63,20 +62,15 @@ export function StandingsSection({ standings }: { standings: StandingsResponse |
                   {rows.map((row) => (
                     <tr key={row.team_id} className="transition hover:bg-white/5">
                       <td className="px-4 py-4">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm font-black text-white">
-                          {row.position}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
                           <FlagBadge
                             code={row.code}
                             emoji={row.flag_emoji}
                             label={row.name}
                             className="h-9 w-9 rounded-xl"
                           />
-                          <div>
-                            <p className="font-black text-white">{row.name}</p>
+                          <div className="min-w-0">
+                            <p className="truncate font-black text-white">{row.name}</p>
                             <p className="text-xs font-bold text-emerald-100/60">{row.code}</p>
                           </div>
                         </div>
@@ -84,7 +78,7 @@ export function StandingsSection({ standings }: { standings: StandingsResponse |
                       {columns.map((column) => (
                         <td
                           key={column.key}
-                          className="px-3 py-4 text-right text-sm font-bold text-emerald-50/80"
+                          className="px-1.5 py-4 text-right text-sm font-bold text-emerald-50/80 sm:px-2"
                         >
                           {row[column.key]}
                         </td>

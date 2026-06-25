@@ -49,7 +49,7 @@ export function TeamGrid({ teams, fixture }: { teams: Team[]; fixture: FixtureMa
               {groupTeams.map((team) => (
                 <div
                   key={team.id}
-                  className="rounded-2xl border border-white/10 bg-pitch-950/35 p-4 transition duration-200 hover:-translate-y-1 hover:border-gold/60 hover:bg-white/10"
+                  className="rounded-2xl border border-white/10 bg-pitch-950/35 p-4 transition-[border-color,box-shadow,background-color] duration-300 hover:border-gold/60 hover:bg-white/10 hover:shadow-[0_0_18px_rgba(214,170,90,0.12)]"
                 >
                   <div className="flex items-center gap-3">
                     <FlagBadge code={team.code} emoji={team.flag_emoji} label={team.name} />

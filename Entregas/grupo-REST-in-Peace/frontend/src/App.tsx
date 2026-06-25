@@ -167,7 +167,7 @@ function BrandLockup() {
 
 function HeroMetric({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-gold/20 bg-pitch-950/50 p-4 shadow-inner transition hover:-translate-y-0.5 hover:border-gold/50">
+    <div className="rounded-2xl border border-gold/20 bg-pitch-950/50 p-4 shadow-inner transition-[border-color,box-shadow] duration-300 hover:border-gold/50 hover:shadow-[0_0_20px_rgba(214,170,90,0.12)]">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-100/50">{label}</p>
       <p className="mt-2 font-display text-4xl font-black text-white">{value}</p>
     </div>

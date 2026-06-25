@@ -213,6 +213,8 @@ function BracketCard({
   onActivate: () => void
 }) {
   const hasResult = Boolean(match.user_result)
+  const isFinal = match.round === 'final'
+  const animateAdvancedTeams = match.round !== 'R16'
   const statusLabel = !match.is_ready
     ? 'Pendiente'
     : hasResult
@@ -221,7 +223,11 @@ function BracketCard({
 
   return (
     <article
-      className={cx('bracket-match group rounded-2xl p-2.5', isActive && 'bracket-match-active')}
+      className={cx(
+        'bracket-match group rounded-2xl p-2.5',
+        isActive && 'bracket-match-active',
+        hasResult && 'bracket-match-complete',
+      )}
       onMouseEnter={onActivate}
       onFocus={onActivate}
       onClick={onActivate}
@@ -250,6 +256,9 @@ function BracketCard({
         flag={match.home_team?.flag_emoji}
         code={match.home_team?.code}
         isWinner={match.winner?.code === match.home_team?.code}
+        isLoser={hasResult && Boolean(match.home_team?.code) && match.winner?.code !== match.home_team?.code}
+        isAdvancing={animateAdvancedTeams && Boolean(match.home_team?.code)}
+        isChampion={isFinal && match.winner?.code === match.home_team?.code}
         goals={match.user_result?.home_goals}
       />
       <div className="relative my-1.5 flex items-center justify-center">
@@ -264,6 +273,9 @@ function BracketCard({
         flag={match.away_team?.flag_emoji}
         code={match.away_team?.code}
         isWinner={match.winner?.code === match.away_team?.code}
+        isLoser={hasResult && Boolean(match.away_team?.code) && match.winner?.code !== match.away_team?.code}
+        isAdvancing={animateAdvancedTeams && Boolean(match.away_team?.code)}
+        isChampion={isFinal && match.winner?.code === match.away_team?.code}
         goals={match.user_result?.away_goals}
       />
 
@@ -301,18 +313,28 @@ function BracketTeam({
   code,
   goals,
   isWinner,
+  isLoser,
+  isAdvancing,
+  isChampion,
 }: {
   name: string
   flag?: string
   code?: string
   goals?: number
   isWinner: boolean
+  isLoser: boolean
+  isAdvancing: boolean
+  isChampion: boolean
 }) {
   return (
     <div
       className={cx(
-        'bracket-team flex items-center justify-between gap-2 rounded-xl p-2',
-        isWinner && 'bracket-team-winner',
+        'bracket-team flex items-center justify-between gap-2 rounded-xl p-2 transition-all duration-300 ease-out',
+        isWinner &&
+          'bracket-team-winner border-gold/80 bg-gold/10 text-white shadow-[0_0_24px_rgba(214,170,90,0.16)]',
+        isLoser && 'bracket-team-loser opacity-70 saturate-[0.85]',
+        isAdvancing && 'bracket-team-advance-in',
+        isChampion && 'bracket-team-champion',
         !code && 'bracket-team-pending',
       )}
     >
@@ -320,13 +342,19 @@ function BracketTeam({
         <FlagBadge code={code} emoji={flag} label={name} className="h-6 w-6 rounded-lg" />
         <div className="min-w-0">
           <p className="truncate text-xs font-black text-white">{name}</p>
+          {isChampion ? (
+            <p className="mt-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-gold">
+              🏆 Campeon
+            </p>
+          ) : null}
           <p className="text-[10px] font-bold text-emerald-100/60">{code ?? 'TBD'}</p>
         </div>
       </div>
       <span
         className={cx(
-          'flex h-7 w-7 items-center justify-center rounded-lg text-base font-black',
-          isWinner ? 'bg-gold text-pitch-950' : 'bg-white/10 text-white',
+          'flex h-7 w-7 items-center justify-center rounded-lg text-base font-black transition-all duration-300',
+          isWinner ? 'bg-gold text-pitch-950 shadow-[0_0_18px_rgba(214,170,90,0.32)]' : 'bg-white/10 text-white',
+          isChampion && 'ring-1 ring-gold/70',
         )}
       >
         {goals ?? '-'}

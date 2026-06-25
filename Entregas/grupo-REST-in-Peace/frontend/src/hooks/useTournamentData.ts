@@ -67,11 +67,13 @@ export function useTournamentData(session: Session | null) {
   }, [session])
 
   useEffect(() => {
-    if (session) {
-      void refresh()
-    } else {
-      setData(emptyData)
-    }
+    void Promise.resolve().then(() => {
+      if (session) {
+        void refresh()
+      } else {
+        setData(emptyData)
+      }
+    })
   }, [refresh, session])
 
   const submitResult = useCallback(
