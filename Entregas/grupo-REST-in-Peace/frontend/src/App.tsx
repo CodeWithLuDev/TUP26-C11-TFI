@@ -4,7 +4,7 @@ import { clearStoredSession, getStoredSession } from './api/client'
 import { AuthScreen } from './components/AuthScreen'
 import { BracketSection } from './components/BracketSection'
 import { FixtureSection } from './components/FixtureSection'
-import { Navigation, type View } from './components/Navigation'
+import { DesktopNavigation, MobileMenu, type View } from './components/Navigation'
 import { StandingsSection } from './components/StandingsSection'
 import { StatsSection } from './components/StatsSection'
 import { TeamGrid } from './components/TeamGrid'
@@ -55,26 +55,21 @@ function App() {
   return (
     <main className="stadium-shell min-h-screen px-4 py-5 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl rounded-[2rem] border border-gold/10 bg-black/20 p-3 shadow-card backdrop-blur-sm">
-        <header className="qatar-navbar sticky top-4 z-30 rounded-2xl px-5 py-4">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <header className="qatar-navbar sticky top-3 z-30 rounded-2xl px-3 py-3 sm:top-4 sm:px-5 sm:py-4">
+          <div className="flex items-center gap-3 lg:gap-5">
             <BrandLockup />
-            <Navigation activeView={activeView} onChange={setActiveView} />
-            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => void refresh()}
-                  className="rounded-xl border border-gold/35 px-4 py-2 text-sm font-bold text-emerald-50 transition hover:-translate-y-0.5 hover:bg-gold/10 hover:text-white"
-                >
-                  Actualizar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-xl bg-gold px-4 py-2 text-sm font-black text-pitch-950 transition hover:-translate-y-0.5 hover:bg-emerald-50"
-                >
-                  Salir
-                </button>
+            <div className="hidden min-w-0 flex-1 lg:block">
+              <DesktopNavigation activeView={activeView} onChange={setActiveView} />
+            </div>
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              <MobileMenu
+                activeView={activeView}
+                onChange={setActiveView}
+                onRefresh={() => void refresh()}
+                onLogout={handleLogout}
+              />
+              <div className="hidden lg:flex">
+                <HeaderActions onRefresh={() => void refresh()} onLogout={handleLogout} />
               </div>
             </div>
           </div>
@@ -147,21 +142,60 @@ function App() {
 
 function BrandLockup() {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex min-w-0 items-center gap-3">
       <img
         src="/qatar-2022-logo-transparent.png"
         alt="FIFA World Cup Qatar 2022"
-        className="h-16 w-24 object-contain object-left drop-shadow-[0_0_18px_rgba(255,248,239,0.42)]"
+        className="h-12 w-16 shrink-0 object-contain object-left drop-shadow-[0_0_18px_rgba(255,248,239,0.42)] sm:h-16 sm:w-24"
       />
-      <div className="hidden leading-none sm:block">
-        <p className="font-display text-2xl font-black uppercase tracking-tight text-white">
+      <div className="hidden min-w-0 leading-none sm:block">
+        <p className="truncate font-display text-xl font-black uppercase tracking-tight text-white sm:text-2xl">
           FIFA World Cup
         </p>
-        <p className="font-display text-3xl font-black uppercase tracking-tight text-emerald-50">
+        <p className="truncate font-display text-2xl font-black uppercase tracking-tight text-emerald-50 sm:text-3xl">
           Qatar 2022
         </p>
       </div>
     </div>
+  )
+}
+
+function HeaderActions({
+  onRefresh,
+  onLogout,
+}: {
+  onRefresh: () => void
+  onLogout: () => void
+}) {
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      <button
+        type="button"
+        onClick={onRefresh}
+        aria-label="Actualizar datos"
+        title="Actualizar"
+        className="inline-flex items-center gap-2 rounded-xl border border-gold/35 px-3 py-2 text-sm font-bold text-emerald-50 transition hover:-translate-y-0.5 hover:bg-gold/10 hover:text-white sm:px-4"
+      >
+        <RefreshIcon className="h-4 w-4" />
+        <span className="hidden min-[420px]:inline">Actualizar</span>
+      </button>
+      <button
+        type="button"
+        onClick={onLogout}
+        className="rounded-xl bg-gold px-3 py-2 text-sm font-black text-pitch-950 transition hover:-translate-y-0.5 hover:bg-emerald-50 sm:px-4"
+      >
+        Salir
+      </button>
+    </div>
+  )
+}
+
+function RefreshIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <path d="M20 12a8 8 0 1 1-2.3-5.7" />
+      <path d="M20 4v6h-6" />
+    </svg>
   )
 }
 

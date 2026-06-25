@@ -91,6 +91,25 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.auth-input::placeholder {
+  color: transparent;
+}
+
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+  box-shadow: 0 0 0 1000px rgb(var(--color-pitch-950) / 0.85) inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
+.auth-password-toggle:focus-visible {
+  outline: 2px solid rgb(var(--color-gold) / 0.8);
+  outline-offset: 2px;
+  border-radius: 0.75rem;
+}
+
 .field-lines {
   background-image:
     radial-gradient(circle at 1px 1px, rgb(var(--color-sand) / 0.13) 1px, transparent 0),
@@ -100,6 +119,7 @@ button:disabled {
 }
 
 .qatar-navbar {
+  overflow: visible;
   border: 1px solid rgb(var(--color-gold) / 0.26);
   background:
     linear-gradient(90deg, rgb(var(--color-pitch-900) / 0.96), rgb(var(--color-burgundy) / 0.88)),
@@ -110,6 +130,16 @@ button:disabled {
     0 24px 70px rgba(19, 3, 9, 0.46),
     0 12px 34px rgb(var(--color-gold) / 0.08);
   backdrop-filter: blur(18px);
+}
+
+.mobile-menu-panel {
+  border: 1px solid rgb(var(--color-gold) / 0.35);
+  background:
+    linear-gradient(180deg, rgb(var(--color-pitch-950)) 0%, rgb(var(--color-pitch-900)) 100%);
+  box-shadow:
+    0 18px 50px rgba(19, 3, 9, 0.72),
+    0 0 0 1px rgb(var(--color-burgundy) / 0.45),
+    inset 0 1px 0 rgb(var(--color-gold) / 0.16);
 }
 
 .hero-stadium {
