@@ -37,6 +37,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@property --auth-border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -66,15 +72,16 @@ body {
 
 .auth-login-screen {
   background:
-    linear-gradient(180deg, rgb(var(--color-pitch-950) / 0.74), rgb(var(--color-pitch-950) / 0.9)),
-    radial-gradient(circle at 20% 34%, rgb(var(--color-gold) / 0.18), transparent 18rem),
-    radial-gradient(circle at 82% 18%, rgb(var(--color-burgundy) / 0.28), transparent 26rem),
+    linear-gradient(180deg, rgb(var(--color-pitch-950) / 0.78), rgb(var(--color-pitch-950) / 0.9)),
+    radial-gradient(circle at 12% 8%, rgb(var(--color-gold) / 0.24), transparent 28rem),
+    radial-gradient(circle at 88% 14%, rgb(var(--color-burgundy) / 0.32), transparent 34rem),
     url('/qatar-stadium-background.png'),
-    linear-gradient(135deg, var(--app-bg-start), var(--app-bg-mid));
+    linear-gradient(135deg, var(--app-bg-start) 0%, var(--app-bg-mid) 42%, var(--app-bg-end) 100%);
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  animation: authBackgroundDrift 28s ease-in-out infinite alternate;
 }
 
 button,
@@ -108,6 +115,87 @@ button:disabled {
   outline: 2px solid rgb(var(--color-gold) / 0.8);
   outline-offset: 2px;
   border-radius: 0.75rem;
+}
+
+.auth-form-border {
+  position: relative;
+}
+
+.auth-form-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background:
+    conic-gradient(
+      from var(--auth-border-angle, 0deg),
+      transparent 0deg,
+      transparent 292deg,
+      rgb(var(--color-gold) / 0.12) 318deg,
+      rgb(var(--color-gold) / 0.78) 342deg,
+      rgb(var(--color-gold) / 0.16) 358deg,
+      transparent 360deg
+    );
+  filter: drop-shadow(0 0 10px rgb(var(--color-gold) / 0.28));
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: authBorderSweep 5.4s linear infinite;
+}
+
+.auth-hero-logo {
+  animation: authHeroLogoIn 720ms ease-out both;
+}
+
+.auth-hero-particles span {
+  position: absolute;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 9999px;
+  background: rgb(var(--color-gold));
+  opacity: 0.18;
+  box-shadow: 0 0 16px rgb(var(--color-gold) / 0.34);
+  animation: authParticleFloat 11s ease-in-out infinite;
+}
+
+.auth-hero-particles span:nth-child(1) {
+  left: 13%;
+  top: 28%;
+  animation-delay: 0s;
+}
+
+.auth-hero-particles span:nth-child(2) {
+  left: 31%;
+  top: 18%;
+  width: 0.22rem;
+  height: 0.22rem;
+  animation-delay: 2.6s;
+}
+
+.auth-hero-particles span:nth-child(3) {
+  left: 46%;
+  top: 64%;
+  width: 0.2rem;
+  height: 0.2rem;
+  animation-delay: 5.4s;
+}
+
+.auth-hero-particles span:nth-child(4) {
+  left: 21%;
+  top: 76%;
+  width: 0.24rem;
+  height: 0.24rem;
+  animation-delay: 7.2s;
+}
+
+.auth-hero-particles span:nth-child(5) {
+  left: 56%;
+  top: 36%;
+  width: 0.18rem;
+  height: 0.18rem;
+  animation-delay: 4s;
 }
 
 .field-lines {
@@ -521,6 +609,44 @@ button:disabled {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes authBackgroundDrift {
+  from {
+    background-position: center center;
+  }
+  to {
+    background-position: center calc(50% - 10px);
+  }
+}
+
+@keyframes authHeroLogoIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authParticleFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translate3d(8px, -12px, 0);
+    opacity: 0.26;
+  }
+}
+
+@keyframes authBorderSweep {
+  to {
+    --auth-border-angle: 360deg;
   }
 }
 

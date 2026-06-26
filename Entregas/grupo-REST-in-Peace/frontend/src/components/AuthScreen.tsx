@@ -138,19 +138,32 @@ export function AuthScreen({ onAuthenticated }: { onAuthenticated: (session: Ses
   }
 
   return (
-    <main className="auth-login-screen flex min-h-screen items-center px-4 py-4 text-white sm:px-6 lg:px-8">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[1fr_0.9fr] lg:gap-12">
-        <section className="flex items-center justify-center px-3 py-4 text-center lg:justify-start">
-          <div className="relative flex w-full max-w-lg justify-center lg:justify-start">
-            <img
-              src="/qatar-2022-logo-transparent.png"
-              alt="FIFA World Cup Qatar 2022"
-              className="auth-logo-hero h-auto w-full max-w-[14rem] object-contain sm:max-w-[17rem] lg:max-w-[22rem]"
-            />
+    <main className="auth-login-screen relative min-h-screen overflow-hidden text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_42%,rgba(15,3,8,0.34)_100%)]" />
+      <div className="relative z-10 grid min-h-screen lg:grid-cols-[minmax(0,1.08fr)_minmax(26rem,0.92fr)]">
+        <section className="relative isolate flex min-h-[36vh] items-center justify-start overflow-hidden px-6 py-10 text-left sm:min-h-[42vh] sm:px-10 lg:min-h-screen lg:px-14 xl:px-20">
+          <div className="pointer-events-none absolute left-8 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-white/10 blur-3xl sm:h-80 sm:w-80 lg:left-20 lg:h-[30rem] lg:w-[30rem]" />
+          <div className="pointer-events-none absolute left-16 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-gold/10 blur-[90px] lg:left-28 lg:h-[34rem] lg:w-[34rem]" />
+          <div className="auth-hero-particles pointer-events-none absolute inset-0">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+          <div className="auth-hero-logo relative z-10 flex w-full justify-start">
+            <div className="relative">
+              <img
+                src="/qatar-login-logo-lockup.png"
+                alt="FIFA World Cup Qatar 2022"
+                className="h-auto w-full max-w-[22rem] object-contain drop-shadow-[0_28px_70px_rgba(19,3,9,0.58)] sm:max-w-[30rem] lg:max-w-[38rem] xl:max-w-[44rem]"
+              />
+              <div className="mx-auto mt-4 h-px w-2/3 bg-gradient-to-r from-transparent via-gold/45 to-transparent" />
+            </div>
           </div>
         </section>
 
-        <section className="qatar-panel mx-auto w-full max-w-md rounded-[1.75rem] p-5 shadow-[0_28px_90px_rgba(19,3,9,0.48)] sm:p-7">
+        <section className="auth-form-border qatar-panel mx-auto my-6 w-[calc(100%-2rem)] max-w-md self-center rounded-[1.75rem] p-5 shadow-[0_28px_90px_rgba(19,3,9,0.48)] sm:my-8 sm:p-7 lg:my-0">
           <div className="mb-6 text-left">
             <p className="text-xs font-black uppercase tracking-[0.28em] text-gold">
               {isLogin ? 'Ingresar' : 'Crear cuenta'}
